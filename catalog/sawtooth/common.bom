@@ -73,6 +73,10 @@ brooklyn.catalog:
             description: "Network Debug"
             type: boolean
             default: false
+          - name: standalone
+            description: "Engine for a standalone sever (true) or full cluster (false)"
+            type: boolean
+            default: false
 
         brooklyn.config:
           shell.env:
@@ -87,6 +91,7 @@ brooklyn.catalog:
                 - $brooklyn:attributeWhenReady("host.subnet.address")
                 - $brooklyn:config("docker.port")
             DEBUG: $brooklyn:config("network.debug")
+            STANDALONE: $brooklyn:config("standalone")
 
           install.command: |
             sudo apt-get update -y
@@ -103,34 +108,44 @@ brooklyn.catalog:
             sudo apt-get update -y
             sudo apt-get install -y ${DOCKER_PACKAGE}
 
-          post.install.command: |
-            echo "[SAW] docker installed"
-            if ${DEBUG} ; then
-              sudo apt-get install -y \
-                iputils-ping iproute2 net-tools traceroute
-              echo "[SAW] machine ${HOST_ADDRESS} network debug tools installed"
-            fi
-
           customize.command: |
             sudo systemctl stop docker.service
             sudo sed -i "s/ExecStart=\/usr\/bin\/dockerd.*$/ExecStart=\/usr\/bin\/dockerd/g" \
               /lib/systemd/system/docker.service
             GROUP=$(groups | cut -d\  -f1)
-            sudo tee /etc/docker/daemon.json <<EOF
-            {
-              "debug": true,
-              "hosts": [
-                "fd://",
-                "tcp://0.0.0.0:${DOCKER_PORT}"
-              ],
-              "group": "${GROUP}",
-              "cluster-store": "${ETCD_AUTHORITY}",
-              "cluster-advertise": "${HOST_SUBNET_ADDRESS}:${DOCKER_PORT}",
-              "labels": [
-                "org.apache.brooklyn.entity=sawtooth-docker-engine"
-              ]
-            }
-            EOF
+
+            if ${STANDALONE} ; then
+              sudo tee /etc/docker/daemon.json <<EOF1
+              {
+                "debug": true,
+                "hosts": [
+                  "fd://",
+                  "tcp://0.0.0.0:${DOCKER_PORT}"
+                ],
+                "group": "${GROUP}",
+                "labels": [
+                  "org.apache.brooklyn.entity=sawtooth-docker-engine"
+                ]
+              }
+            EOF1
+            else
+              sudo tee /etc/docker/daemon.json <<EOF2
+              {
+                "debug": true,
+                "hosts": [
+                  "fd://",
+                  "tcp://0.0.0.0:${DOCKER_PORT}"
+                ],
+                "group": "${GROUP}",
+                "cluster-store": "${ETCD_AUTHORITY}",
+                "cluster-advertise": "${HOST_SUBNET_ADDRESS}:${DOCKER_PORT}",
+                "labels": [
+                  "org.apache.brooklyn.entity=sawtooth-docker-engine"
+                ]
+              }
+            EOF2
+            fi
+
             sudo systemctl daemon-reload
             echo "[SAW] docker configured"
 

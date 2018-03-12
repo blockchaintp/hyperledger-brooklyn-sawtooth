@@ -7,6 +7,52 @@ brooklyn.catalog:
     icon_url: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
 
   items:
+    - id: sawtooth-server-application
+      description: |
+        Hyperledger Sawtooth standalone server application.
+      itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      item:
+        type: org.apache.brooklyn.entity.stock.BasicApplication
+        name: "sawtooth-cluster-application"
+
+        brooklyn.parameters:
+          - name: sawtooth.version
+            description: "Sawtooth Version"
+            type: string
+            default: "latest"
+          - name: sawtooth.repository
+            description: "Sawtooth Repository"
+            type: string
+            default: "sawtooth"
+          - name: sawtooth.network
+            description: "Network Name"
+            type: string
+            default: "sawtooth"
+          - name: sawtooth.network.cidr
+            description: "Network CIDR"
+            type: string
+            default: "10.0.0.0/24"
+          - name: sawtooth.network.gw
+            description: "Network Gateway"
+            type: string
+            default: "10.0.0.1"
+
+        brooklyn.children:
+          - type: sawtooth-server-node
+            name: "sawtooth-server-node"
+            id: sawtooth-server-node
+            brooklyn.config:
+              standalone: true
+
+        brooklyn.enrichers:
+          - type: org.apache.brooklyn.enricher.stock.Propagator
+            brooklyn.config:
+              uniqueTag: rest-api-main-uri-propagator
+              producer: $brooklyn:component("sawtooth-server-node")
+              sensorMapping:
+                $brooklyn:sensor("sawtooth.rest-api.uri"): $brooklyn:sensor("main.uri")
+
     - id: sawtooth-cluster-application
       description: |
         Hyperledger Sawtooth cluster application.
@@ -118,10 +164,12 @@ brooklyn.catalog:
             SUBNET: $brooklyn:config("sawtooth.network.cidr")
             GATEWAY: $brooklyn:config("sawtooth.network.gw")
           post.launch.command: |
-            echo "[SAW] Setup ${NETWORK} overlay network (${SUBNET})"
-            docker network ls | grep "overlay.*${NETWORK}" ||
+            if [ ${STANDALONE} ] ; then DRIVER=bridge ; else DRIVER=overlay ; fi
+
+            echo "[SAW] Setup ${NETWORK} ${DRIVER} network (${SUBNET})"
+            docker network ls | grep "${DRIVER}.*${NETWORK}" ||
               docker network create \
-                  --driver=overlay \
+                  --driver=${DRIVER} \
                   --subnet="${SUBNET}" \
                   --gateway="${GATEWAY}" \
                   "${NETWORK}"
