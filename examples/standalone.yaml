@@ -6,14 +6,13 @@ description: |
 location: <add-location-here>
 
 services:
-  - type: sawtooth-server-application
+  - type: sawtooth-standalone-server-application
     id: sawtooth-server
     name: "sawtooth-server"
 
     brooklyn.config:
       sawtooth.version: "1.0.2"
       sawtooth.repository: "sawtooth"
-      sawtooth.size: 4
       sawtooth.network: "example"
       sawtooth.network.cidr: "10.0.0.0/22"
       sawtooth.network.gw: "10.0.0.1"

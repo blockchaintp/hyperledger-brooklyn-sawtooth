@@ -73,10 +73,10 @@ brooklyn.catalog:
             description: "Network Debug"
             type: boolean
             default: false
-          - name: standalone
-            description: "Engine for a standalone sever (true) or full cluster (false)"
+          - name: full.cluster
+            description: "Engine for a standalone sever (false) or full cluster (true)"
             type: boolean
-            default: false
+            default: true
 
         brooklyn.config:
           shell.env:
@@ -91,7 +91,7 @@ brooklyn.catalog:
                 - $brooklyn:attributeWhenReady("host.subnet.address")
                 - $brooklyn:config("docker.port")
             DEBUG: $brooklyn:config("network.debug")
-            STANDALONE: $brooklyn:config("standalone")
+            FULL_CLUSTER: $brooklyn:config("full.cluster")
 
           install.command: |
             sudo apt-get update -y
@@ -114,7 +114,7 @@ brooklyn.catalog:
               /lib/systemd/system/docker.service
             GROUP=$(groups | cut -d\  -f1)
 
-            if ${STANDALONE} ; then
+            if ${FULL_CLUSTER} ; then
               sudo tee /etc/docker/daemon.json <<EOF1
               {
                 "debug": true,
@@ -123,6 +123,8 @@ brooklyn.catalog:
                   "tcp://0.0.0.0:${DOCKER_PORT}"
                 ],
                 "group": "${GROUP}",
+                "cluster-store": "${ETCD_AUTHORITY}",
+                "cluster-advertise": "${HOST_SUBNET_ADDRESS}:${DOCKER_PORT}",
                 "labels": [
                   "org.apache.brooklyn.entity=sawtooth-docker-engine"
                 ]
@@ -137,8 +139,6 @@ brooklyn.catalog:
                   "tcp://0.0.0.0:${DOCKER_PORT}"
                 ],
                 "group": "${GROUP}",
-                "cluster-store": "${ETCD_AUTHORITY}",
-                "cluster-advertise": "${HOST_SUBNET_ADDRESS}:${DOCKER_PORT}",
                 "labels": [
                   "org.apache.brooklyn.entity=sawtooth-docker-engine"
                 ]

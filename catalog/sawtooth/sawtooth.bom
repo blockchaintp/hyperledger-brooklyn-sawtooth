@@ -7,7 +7,7 @@ brooklyn.catalog:
     icon_url: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
 
   items:
-    - id: sawtooth-server-application
+    - id: sawtooth-standalone-server-application
       description: |
         Hyperledger Sawtooth standalone server application.
       itemType: entity
@@ -43,7 +43,7 @@ brooklyn.catalog:
             name: "sawtooth-server-node"
             id: sawtooth-server-node
             brooklyn.config:
-              standalone: true
+              full.cluster: false
 
         brooklyn.enrichers:
           - type: org.apache.brooklyn.enricher.stock.Propagator
@@ -163,8 +163,9 @@ brooklyn.catalog:
             NETWORK: $brooklyn:config("sawtooth.network")
             SUBNET: $brooklyn:config("sawtooth.network.cidr")
             GATEWAY: $brooklyn:config("sawtooth.network.gw")
+            FULL_CLUSTER: $brooklyn:config("full.cluster")
           post.launch.command: |
-            if [ ${STANDALONE} ] ; then DRIVER=bridge ; else DRIVER=overlay ; fi
+            if ${FULL_CLUSTER} ; then DRIVER=overlay ; else DRIVER=bridge ; fi
 
             echo "[SAW] Setup ${NETWORK} ${DRIVER} network (${SUBNET})"
             docker network ls | grep "${DRIVER}.*${NETWORK}" ||
@@ -175,9 +176,17 @@ brooklyn.catalog:
                   "${NETWORK}"
 
         brooklyn.children:
-          - type: openvpn-server
+          - type: org.apache.brooklyn.entity.stock.ConditionalEntity
             name: "openvpn-server"
             id: openvpn-server
+            brooklyn.config:
+              start.timeout: "forever"
+              conditional.entity.create: $brooklyn:config("full.cluster")
+              conditional.entity.spec:
+                $brooklyn:entitySpec:
+                  type: openvpn-server
+                  name: "openvpn-server"
+              conditional.entity.propagate: true
           - type: influxdb
             name: "influxdb"
             id: influxdb
