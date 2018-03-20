@@ -980,7 +980,7 @@ brooklyn.catalog:
             $brooklyn:formatString:
               - "seth-tp-%s"
               - $brooklyn:attributeWhenReady("entity.id")
-          image.name: "sawtooth-seth"
+          image.name: "sawtooth-seth-tp"
           image.version: $brooklyn:config("sawtooth.version")
           image.repository: $brooklyn:config("sawtooth.repository")
 
@@ -1000,7 +1000,9 @@ brooklyn.catalog:
                 -v "$(pwd)/data:/data" \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                /bin/seth-tp -vv --connect tcp://${NODE}.${NETWORK}:4004
+                seth-tp -vv \
+                    --connect tcp://${NODE}.${NETWORK}:4004 \
+                    --listen tcp://*:4004
 
         brooklyn.initializers:
           - type: org.apache.brooklyn.core.effector.ssh.SshCommandEffector
@@ -1035,7 +1037,7 @@ brooklyn.catalog:
             $brooklyn:formatString:
               - "seth-rpc-%s"
               - $brooklyn:attributeWhenReady("entity.id")
-          image.name: "sawtooth-seth"
+          image.name: "sawtooth-seth-rpc"
           image.version: $brooklyn:config("sawtooth.version")
           image.repository: $brooklyn:config("sawtooth.repository")
 
@@ -1055,14 +1057,15 @@ brooklyn.catalog:
                 -d \
                 -p 4004 \
                 -p 3030:3030 \
+                -e RUST_BACKTRACE=full \
                 ${VOLUMES_FROM} \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
                 bash -c "\
                   [ -L ~root/.sawtooth ] || ln -s /data ~root/.sawtooth ; \
                   cd /data ; \
-                  accounts=\$(ls *.pem | cut -d. -f1 | paste -d\  -s -)
-                  /bin/seth-rpc \
+                  accounts=\$(ls *.pem | cut -d. -f1 | paste -d\  -s -) ; \
+                  seth-rpc \
                     -vv \
                     --bind 0.0.0.0:3030 \
                     --connect tcp://${NODE}.${NETWORK}:4004 \
