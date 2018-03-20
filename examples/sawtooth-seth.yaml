@@ -1,14 +1,14 @@
-id: sawtooth-example
-name: "sawtooth-example"
+id: sawtooth-seth-example
+name: "sawtooth-seth-example"
 description: |
-  Example Sawtooth cluster.
+  Example Sawtooth Seth cluster.
 
 location: <add-location-here>
 
 services:
   - type: sawtooth-cluster-application
-    id: sawtooth-cluster
-    name: "sawtooth-cluster"
+    id: sawtooth-seth-cluster
+    name: "sawtooth-seth-cluster"
 
     brooklyn.config:
       sawtooth.version: "1.0.2"
@@ -18,3 +18,6 @@ services:
       sawtooth.network.cidr: "10.0.0.0/22"
       sawtooth.network.gw: "10.0.0.1"
       sawtooth.cluster.name: "sawtooth"
+      sawtooth.transaction-processors.spec:
+        $brooklyn:entitySpec:
+          type: sawtooth-seth-transaction-processors

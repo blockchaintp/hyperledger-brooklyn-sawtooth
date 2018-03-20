@@ -37,6 +37,14 @@ brooklyn.catalog:
             description: "Network Gateway"
             type: string
             default: "10.0.0.1"
+          - name: sawtooth.transaction-processors.spec
+            label: Sawtooth Transaction Processors
+            description: |
+              An EntitySpec for the set of Sawtooth Transaction Processors to create initially
+            type: org.apache.brooklyn.api.entity.EntitySpec
+            default:
+              $brooklyn:entitySpec:
+                type: sawtooth-transaction-processors
 
         brooklyn.children:
           - type: sawtooth-server-node
@@ -93,6 +101,14 @@ brooklyn.catalog:
             description: "Cluster Name"
             type: string
             default: "sawtooth"
+          - name: sawtooth.transaction-processors.spec
+            label: Sawtooth Transaction Processors
+            description: |
+              An EntitySpec for the set of Sawtooth Transaction Processors to create initially
+            type: org.apache.brooklyn.api.entity.EntitySpec
+            default:
+              $brooklyn:entitySpec:
+                type: sawtooth-transaction-processors
 
         brooklyn.children:
           - type: etcd-node
@@ -176,7 +192,7 @@ brooklyn.catalog:
                   "${NETWORK}"
 
         brooklyn.children:
-          - type: org.apache.brooklyn.entity.stock.ConditionalEntity
+          - type: conditional-entity
             name: "openvpn-server"
             id: openvpn-server
             brooklyn.config:
@@ -210,46 +226,16 @@ brooklyn.catalog:
             id: sawtooth-validator
             brooklyn.config:
               latch.launch: $brooklyn:sibling("grafana").attributeWhenReady("service.isUp")
-          - type: sawtooth-settings-tp
-            name: "sawtooth-settings-tp"
-            id: sawtooth-settings-tp
+          - type: conditional-entity
+            id: sawtooth-transaction-processors
+            name: "sawtooth-transaction-processors"
             brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-          - type: sawtooth-identity-tp
-            name: "sawtooth-identity-tp"
-            id: sawtooth-identity-tp
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-          - type: sawtooth-block-info-tp
-            name: "sawtooth-block-info-tp"
-            id: sawtooth-block-info-tp
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-          - type: sawtooth-smallbank-tp
-            name: "sawtooth-smallbank-tp"
-            id: sawtooth-smallbank-tp
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-          - type: sawtooth-seth-tp
-            name: "sawtooth-seth-tp"
-            id: sawtooth-seth-tp
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-              post.launch.command: |
-                docker exec ${CONTAINER_NAME} \
-                  seth init http://rest-api.${NETWORK}:8080
-                docker exec ${CONTAINER_NAME} \
-                  bash -c "openssl ecparam -genkey -name secp256k1 | openssl ec -out brooklyn.pem" > /dev/null
-                docker exec ${CONTAINER_NAME} \
-                  seth account import brooklyn.pem brooklyn > /dev/null
-                docker exec ${CONTAINER_NAME} \
-                  seth account create --nonce=1 --wait brooklyn > ${HOME}/brooklyn.out
-          - type: sawtooth-seth-rpc
-            name: "sawtooth-seth-rpc"
-            id: sawtooth-seth-rpc
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-seth-tp").attributeWhenReady("service.isUp")
-              sawtooth.seth-tp: $brooklyn:sibling("sawtooth-seth-tp").config("container.name")
+              conditional.entity.create: true
+              conditional.entity.propagate: false
+              conditional.entity.spec: $brooklyn:config("sawtooth.transaction-processors.spec")
+              start.timeout: "forever"
+              latch.launch:
+                $brooklyn:ancestor("sawtooth-transaction-processors").sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
         brooklyn.initializers:
           - type: org.apache.brooklyn.core.sensor.StaticSensor
@@ -321,31 +307,16 @@ brooklyn.catalog:
           - type: sawtooth-validator
             name: "sawtooth-validator"
             id: sawtooth-validator
-          - type: sawtooth-settings-tp
-            name: "sawtooth-settings-tp"
-            id: sawtooth-settings-tp
+          - type: conditional-entity
+            id: sawtooth-transaction-processors
+            name: "sawtooth-transaction-processors"
             brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-          - type: sawtooth-identity-tp
-            name: "sawtooth-identity-tp"
-            id: sawtooth-identity-tp
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-          - type: sawtooth-block-info-tp
-            name: "sawtooth-block-info-tp"
-            id: sawtooth-block-info-tp
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-          - type: sawtooth-smallbank-tp
-            name: "sawtooth-smallbank-tp"
-            id: sawtooth-smallbank-tp
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-          - type: sawtooth-seth-tp
-            name: "sawtooth-seth-tp"
-            id: sawtooth-seth-tp
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
+              conditional.entity.create: true
+              conditional.entity.propagate: false
+              conditional.entity.spec: $brooklyn:config("sawtooth.transaction-processors.spec")
+              start.timeout: "forever"
+              latch.launch:
+                $brooklyn:ancestor("sawtooth-transaction-processors").sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
         brooklyn.enrichers:
           - type: org.apache.brooklyn.enricher.stock.Propagator
@@ -354,6 +325,56 @@ brooklyn.catalog:
               producer: $brooklyn:child("sawtooth-validator")
               propagating:
                 - $brooklyn:sensor("sawtooth.name")
+
+    - id: sawtooth-transaction-processors
+      description: |
+        Hyperledger Sawtooth transaction processors
+      itemType: entity
+      item:
+        type: empty-software-process
+        name: "sawtooth-transaction-processors"
+        brooklyn.children:
+          - type: sawtooth-settings-tp
+            name: "sawtooth-settings-tp"
+            id: sawtooth-settings-tp
+          - type: sawtooth-identity-tp
+            name: "sawtooth-identity-tp"
+            id: sawtooth-identity-tp
+          - type: sawtooth-block-info-tp
+            name: "sawtooth-block-info-tp"
+            id: sawtooth-block-info-tp
+
+    - id: sawtooth-seth-transaction-processors
+      description: |
+        Hyperledger Sawtooth with Seth transaction processors
+      itemType: entity
+      item:
+        type: sawtooth-transaction-processors
+        name: "sawtooth-seth-transaction-processors"
+        brooklyn.children:
+          - type: sawtooth-seth-tp
+            name: "sawtooth-seth-tp"
+            id: sawtooth-seth-tp
+            brooklyn.config:
+              post.launch.command: |
+                docker exec ${CONTAINER_NAME} \
+                  seth init http://rest-api.${NETWORK}:8080
+                if [ ! -f "data/brooklyn.pem" ] ; then
+                  docker exec ${CONTAINER_NAME} \
+                    bash -c "openssl ecparam -genkey -name secp256k1 | openssl ec -out brooklyn.pem" > /dev/null
+                  docker exec ${CONTAINER_NAME} \
+                    seth account import brooklyn.pem brooklyn > /dev/null
+                  docker exec ${CONTAINER_NAME} \
+                    seth account create --nonce=0 --wait brooklyn > ${HOME}/brooklyn.out
+                fi
+          - type: sawtooth-seth-rpc
+            name: "sawtooth-seth-rpc"
+            id: sawtooth-seth-rpc
+            brooklyn.config:
+              sawtooth.seth-tp: $brooklyn:sibling("sawtooth-seth-tp").config("container.name")
+              post.launch.command: |
+                docker exec ${CONTAINER_NAME} \
+                  seth init http://rest-api.${NETWORK}:8080
 
     - id: sawtooth-workload-application
       description: |
@@ -996,7 +1017,7 @@ brooklyn.catalog:
                 docker exec ${CONTAINER_NAME} \
                   seth account import ${alias}.pem ${alias} > /dev/null
                 docker exec ${CONTAINER_NAME} \
-                  seth account create --nonce=1 --wait ${alias}
+                  seth account create --nonce=0 --wait ${alias}
 
     - id: sawtooth-seth-rpc
       description: |

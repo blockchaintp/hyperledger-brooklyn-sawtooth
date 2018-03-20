@@ -1,12 +1,12 @@
-id: sawtooth-network
-name: "sawtooth-network"
+id: sawtooth-seth-network
+name: "sawtooth-seth-network"
 description: |
-  Sawtooth network split across multiple locations, one central and two remote.
+  Sawtooth Seth network split across multiple locations, one central and two remote.
 
 services:
   - type: sawtooth-cluster-application
-    id: sawtooth-central-cluster
-    name: "sawtooth-central-cluster"
+    id: sawtooth-seth-central-cluster
+    name: "sawtooth-seth-central-cluster"
     location: <add-main-location-here>
 
     brooklyn.config:
@@ -17,40 +17,46 @@ services:
       sawtooth.network.cidr: "10.0.0.0/22"
       sawtooth.network.gw: "10.0.0.1"
       sawtooth.cluster.name: "sawtooth"
+      sawtooth.transaction-processors.spec:
+        $brooklyn:entitySpec:
+          type: sawtooth-seth-transaction-processors
       provisioning.properties:
         minDisk: "64g"
         minCores: 2
         minRam: "3g"
 
   - type: sawtooth-remote-cluster-application
-    id: sawtooth-remote-cluster-one
-    name: "sawtooth-remote-cluster-one"
+    id: sawtooth-seth-remote-cluster-one
+    name: "sawtooth-seth-remote-cluster-one"
     location: <add-remote-location-here>
 
     brooklyn.config:
       sawtooth.version: "1.0.2"
-      sawtooth.repository: "blockchaintp"
+      sawtooth.repository: "sawtooth"
       sawtooth.size: 4
       sawtooth.network: "remote.one"
       sawtooth.network.cidr: "10.1.1.0/24"
       sawtooth.network.gw: "10.1.1.1"
       sawtooth.cluster.name: "sawtooth"
+      sawtooth.transaction-processors.spec:
+        $brooklyn:entitySpec:
+          type: sawtooth-seth-transaction-processors
       sawtooth.seed.network:
-        $brooklyn:component("sawtooth-central-cluster").config("sawtooth.network")
+        $brooklyn:component("sawtooth-seth-central-cluster").config("sawtooth.network")
       sawtooth.seed.network.cidr:
-        $brooklyn:component("sawtooth-central-cluster").config("sawtooth.network.cidr")
+        $brooklyn:component("sawtooth-seth-central-cluster").config("sawtooth.network.cidr")
       openvpn.config:
         $brooklyn:component("openvpn-server").attributeWhenReady("openvpn.config")
       latch.launch:
-        $brooklyn:component("sawtooth-central-cluster").attributeWhenReady("service.isUp")
+        $brooklyn:component("sawtooth-seth-central-cluster").attributeWhenReady("service.isUp")
       provisioning.properties:
         minDisk: "64g"
         minCores: 2
         minRam: "3g"
 
   - type: sawtooth-remote-cluster-application
-    id: sawtooth-remote-cluster-two
-    name: "sawtooth-remote-cluster-two"
+    id: sawtooth-seth-remote-cluster-two
+    name: "sawtooth-seth-remote-cluster-two"
     location: <add-remote-location-here>
 
     brooklyn.config:
@@ -61,14 +67,17 @@ services:
       sawtooth.network.cidr: "10.1.2.0/24"
       sawtooth.network.gw: "10.1.2.1"
       sawtooth.cluster.name: "sawtooth"
+      sawtooth.transaction-processors.spec:
+        $brooklyn:entitySpec:
+          type: sawtooth-seth-transaction-processors
       sawtooth.seed.network:
-        $brooklyn:component("sawtooth-central-cluster").config("sawtooth.network")
+        $brooklyn:component("sawtooth-seth-central-cluster").config("sawtooth.network")
       sawtooth.seed.network.cidr:
-        $brooklyn:component("sawtooth-central-cluster").config("sawtooth.network.cidr")
+        $brooklyn:component("sawtooth-seth-central-cluster").config("sawtooth.network.cidr")
       openvpn.config:
         $brooklyn:component("openvpn-server").attributeWhenReady("openvpn.config")
       latch.launch:
-        $brooklyn:component("sawtooth-central-cluster").attributeWhenReady("service.isUp")
+        $brooklyn:component("sawtooth-seth-central-cluster").attributeWhenReady("service.isUp")
       provisioning.properties:
         minDisk: "64g"
         minCores: 2
