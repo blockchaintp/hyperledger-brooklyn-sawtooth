@@ -361,12 +361,12 @@ brooklyn.catalog:
             brooklyn.config:
               sawtooth.seth-tp: $brooklyn:sibling("sawtooth-seth-tp").config("container.name")
               post.launch.command: |
-                if [ ! -f "data/brooklyn.pem" ] ; then
-                  docker exec ${CONTAINER_NAME} \
+                if [ ! -f "${HOME}/data/brooklyn.pem" ] ; then
+                  docker exec --workdir /data ${CONTAINER_NAME} \
                     bash -c "openssl ecparam -genkey -name secp256k1 | openssl ec -out brooklyn.pem" > /dev/null
-                  docker exec ${CONTAINER_NAME} \
+                  docker exec --workdir /data ${CONTAINER_NAME} \
                     seth account import brooklyn.pem brooklyn > /dev/null
-                  docker exec ${CONTAINER_NAME} \
+                  docker exec --workdir /data ${CONTAINER_NAME} \
                     seth account create --nonce=0 --wait brooklyn > ${HOME}/brooklyn.out
                 fi
           - type: sawtooth-seth-rpc
@@ -981,7 +981,7 @@ brooklyn.catalog:
             NODE: $brooklyn:config("sawtooth.node")
 
           customise.command: |
-            mkdir data
+            mkdir ${HOME}/data
 
           launch.command: |
             docker run \
@@ -990,7 +990,7 @@ brooklyn.catalog:
                 --network ${NETWORK} \
                 -d \
                 -p 4004 \
-                -v "$(pwd)/data:/data" \
+                -v "${HOME}/data:/data" \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
                 seth-tp -vv \
@@ -1045,12 +1045,12 @@ brooklyn.catalog:
                 alias:
                   description: "The account alias"
               command: |
-                [ -f "data/${alias}.pem" ] && exit 1
-                docker exec ${CONTAINER_NAME} \
+                [ -f "${HOME}/data/${alias}.pem" ] && exit 1
+                docker exec --workdir /data ${CONTAINER_NAME} \
                   bash -c "openssl ecparam -genkey -name secp256k1 | openssl ec -out ${alias}.pem" > /dev/null
-                docker exec ${CONTAINER_NAME} \
+                docker exec --workdir /data ${CONTAINER_NAME} \
                   seth account import ${alias}.pem ${alias} > /dev/null
-                docker exec ${CONTAINER_NAME} \
+                docker exec --workdir /data ${CONTAINER_NAME} \
                   seth account create --nonce=0 --wait ${alias}
 
     - id: sawtooth-seth-rpc
