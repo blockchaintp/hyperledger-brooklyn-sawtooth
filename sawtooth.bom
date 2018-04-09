@@ -7,7 +7,7 @@ brooklyn.catalog:
     overview: README.md
 
   brooklyn.libraries:
-    - "https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=io.brooklyn.etcd&a=brooklyn-etcd&v=2.5.0-SNAPSHOT"
+    - "https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=io.brooklyn.etcd&a=brooklyn-etcd&v=2.7.0-SNAPSHOT"
     - url: "mvn:io.brooklyn.hyperledger/sawtooth/0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
       name: io.brooklyn.hyperledger.sawtooth
       version: 0.5.0-SNAPSHOT # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION

@@ -1,0 +1,54 @@
+brooklyn.catalog:
+  version: "0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+  itemType: entity
+
+  items:
+    - "https://raw.githubusercontent.com/brooklyncentral/common-catalog-utils/master/common-tests/src/main/resources/commontests/common.tests.bom"
+    - id: hyperledger-sawtooth-tests
+      type: entity
+      item:
+        name: "hyperledger-sawtooth-network"
+        description: |
+          Hyperledger Sawtooth blockchain network in a single Amazon region.
+
+        services:
+          - type: sawtooth-cluster-application
+            id: hyperledger-sawtooth-cluster
+            name: "hyperledger-sawtooth-cluster"
+
+            brooklyn.config:
+              sawtooth.version: "1.0.3"
+              sawtooth.repository: "blockchaintp"
+              sawtooth.size: 0
+              sawtooth.network: "blockchaintp.local"
+              sawtooth.network.cidr: "10.10.10.0/24"
+              sawtooth.network.gw: "10.10.10.1"
+              sawtooth.cluster.name: "sawtooth"
+
+          - type: test-case
+            name: "Test Assertions"
+
+            brooklyn.config:
+              targetResolutionTimeout: 10s
+              timeout: 30m
+              targetId: hyperledger-sawtooth-cluster
+
+            brooklyn.children:
+              - type: test-case
+                name: "1. Cluster up and running"
+                brooklyn.children:
+                  - type: assert-up-and-running-initial
+
+              - type: test-case
+                name: "2. Main URI OK"
+                brooklyn.children:
+                  - type: test-http-status-200
+                    brooklyn.config:
+                      url: $brooklyn:component("hyperledger-sawtooth-cluster").attributeWhenReady("main.uri")
+
+              - type: test-case
+                name: "3. Grafana URI OK"
+                brooklyn.children:
+                  - type: test-http-status-200
+                    brooklyn.config:
+                      url: $brooklyn:component("sawtooth-server-node").attributeWhenReady("sawtooth.grafana.uri")
