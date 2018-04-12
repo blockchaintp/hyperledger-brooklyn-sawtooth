@@ -71,7 +71,7 @@ brooklyn.catalog:
                       - notEmpty: true
 
               - type: test-case
-                name: "5. sawtooth.name = contains value of sawtooth.network"
+                name: "5. Sawtooth.name contains value of sawtooth.network"
                 brooklyn.children:
                   - type: org.apache.brooklyn.test.framework.TestSensor
                     target: $brooklyn:entity("sawtooth-server-node")
