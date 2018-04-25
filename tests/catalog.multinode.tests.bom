@@ -1,6 +1,10 @@
 brooklyn.catalog:
   version: "0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
   itemType: entity
+  brooklyn.libraries:
+    - url: "mvn:io.brooklyn.hyperledger/sawtooth/0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+      name: io.brooklyn.hyperledger.sawtooth
+      version: 0.5.0-SNAPSHOT # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
 
   items:
     - "https://raw.githubusercontent.com/brooklyncentral/common-catalog-utils/master/common-tests/src/main/resources/commontests/common.tests.bom"
@@ -32,6 +36,7 @@ brooklyn.catalog:
               targetResolutionTimeout: 10s
               timeout: 30m
               targetId: hyperledger-sawtooth-cluster
+              serverNodeId: sawtooth-server-node
 
             brooklyn.children:
               - type: test-case
@@ -39,42 +44,15 @@ brooklyn.catalog:
                 brooklyn.children:
                   - type: assert-up-and-running-initial
 
-              - type: test-case
+              - type: test-main
                 name: "2. Main URI OK"
-                brooklyn.children:
-                  - type: test-http-status-200
-                    brooklyn.config:
-                      url: $brooklyn:component("hyperledger-sawtooth-cluster").attributeWhenReady("main.uri")
 
-              - type: test-case
+              - type: test-grafana
                 name: "3. Grafana URI OK"
-                brooklyn.children:
-                  - type: test-http-status-200
-                    brooklyn.config:
-                      url: $brooklyn:component("sawtooth-server-node").attributeWhenReady("sawtooth.grafana.uri")
 
-              - type: test-case
+              - type: assert-validator-keys
                 name: "4. Check validator keys have values"
-                brooklyn.children:
-                  - type: org.apache.brooklyn.test.framework.TestSensor
-                    name: "4.1 Check sawtooth.key.private has value"
-                    target: $brooklyn:component("sawtooth-server-node").descendant("sawtooth-validator")
-                    sensor: sawtooth.key.private
-                    assert:
-                      - notEmpty: true
+                target: $brooklyn:component("sawtooth-server-node").descendant("sawtooth-validator")
 
-                  - type: org.apache.brooklyn.test.framework.TestSensor
-                    name: "4.2 Check sawtooth.key.public has value"
-                    target: $brooklyn:component("sawtooth-server-node").descendant("sawtooth-validator")
-                    sensor: sawtooth.key.public
-                    assert:
-                      - notEmpty: true
-
-              - type: test-case
+              - type: test-network
                 name: "5. Sawtooth.name contains value of sawtooth.network"
-                brooklyn.children:
-                  - type: org.apache.brooklyn.test.framework.TestSensor
-                    target: $brooklyn:entity("sawtooth-server-node")
-                    sensor: sawtooth.name
-                    assert:
-                      - contains: $brooklyn:entity("hyperledger-sawtooth-cluster").config("sawtooth.network")

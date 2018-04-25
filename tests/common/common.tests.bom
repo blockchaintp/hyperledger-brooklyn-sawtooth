@@ -1,0 +1,49 @@
+brooklyn.catalog:
+  version: "0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+  itemType: entity
+
+  items:
+    - "https://raw.githubusercontent.com/brooklyncentral/common-catalog-utils/master/common-tests/src/main/resources/commontests/common.tests.bom"
+
+    - id: test-main
+      item:
+        type: test-case
+        brooklyn.children:
+          - type: test-http-status-200
+            brooklyn.config:
+              url: $brooklyn:component($brooklyn:config("targetId")).attributeWhenReady("main.uri")
+
+    - id: test-grafana
+      item:
+        type: test-case
+        brooklyn.children:
+          - type: test-http-status-200
+            brooklyn.config:
+              url: $brooklyn:component($brooklyn:config("serverNodeId")).attributeWhenReady("sawtooth.grafana.uri")
+
+    - id: assert-validator-keys
+      item:
+        type: test-case
+        brooklyn.children:
+          - type: assert-sensor
+            name: "Check sawtooth.key.private has value"
+            sensor: sawtooth.key.private
+            assert:
+              - notEmpty: true
+
+          - type: assert-sensor
+            name: "Check sawtooth.key.public has value"
+            sensor: sawtooth.key.public
+            assert:
+              - notEmpty: true
+
+    - id: test-network
+      item:
+        type: test-case
+        brooklyn.children:
+          - type: assert-sensor
+            target: $brooklyn:component($brooklyn:config("serverNodeId"))
+            sensor: sawtooth.name
+            assert:
+              - contains: $brooklyn:component($brooklyn:config("targetId")).config("sawtooth.network")
+
