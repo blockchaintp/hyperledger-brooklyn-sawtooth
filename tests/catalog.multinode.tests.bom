@@ -39,20 +39,5 @@ brooklyn.catalog:
               serverNodeId: sawtooth-server-node
 
             brooklyn.children:
-              - type: test-case
-                name: "1. Cluster up and running"
-                brooklyn.children:
-                  - type: assert-up-and-running-initial
-
-              - type: test-main
-                name: "2. Main URI OK"
-
-              - type: test-grafana
-                name: "3. Grafana URI OK"
-
-              - type: assert-validator-keys
-                name: "4. Check validator keys have values"
-                target: $brooklyn:component("sawtooth-server-node").descendant("sawtooth-validator")
-
-              - type: test-network
-                name: "5. Sawtooth.name contains value of sawtooth.network"
+              - type: sawtooth-tests
+                name: "Hyperleger Sawtooth Tests"

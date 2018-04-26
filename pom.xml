@@ -13,7 +13,7 @@
     <url>https://github.com/blockchaintp/brooklyn-hyperledger-sawtooth</url>
 
     <properties>
-        <brooklyn-etcd.version>2.5.0-SNAPSHOT</brooklyn-etcd.version>
+        <brooklyn-etcd.version>2.7.0-SNAPSHOT</brooklyn-etcd.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
