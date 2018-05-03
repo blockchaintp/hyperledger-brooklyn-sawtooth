@@ -1,5 +1,5 @@
 brooklyn.catalog:
-  version: "0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+  version: "0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
   publish:
     description: |
       Entities and Applications for Hyperledger Sawtooth.
@@ -8,9 +8,9 @@ brooklyn.catalog:
 
   brooklyn.libraries:
     - "https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=io.brooklyn.etcd&a=brooklyn-etcd&v=2.7.0-SNAPSHOT"
-    - url: "mvn:io.brooklyn.hyperledger/sawtooth/0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+    - url: "mvn:io.brooklyn.hyperledger/sawtooth/0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
       name: io.brooklyn.hyperledger.sawtooth
-      version: 0.5.0-SNAPSHOT # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+      version: 0.5.0-SNAPSHOT # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
 
   items:
     - "classpath://io.brooklyn.hyperledger.sawtooth:sawtooth/catalog.bom"
@@ -49,6 +49,27 @@ brooklyn.catalog:
         services:
           - type: sawtooth-remote-cluster-application
             name: "sawtooth-remote-cluster-application"
+
+            brooklyn.config:
+              sawtooth.version: "1.0.3"
+              sawtooth.repository: "sawtooth"
+              sawtooth.size: 3
+              sawtooth.network: "remote"
+              sawtooth.network.cidr: "10.1.1.0/24"
+              sawtooth.network.gw: "10.1.1.1"
+              sawtooth.cluster.name: "brooklyn"
+              sawtooth.seed.network: "sawtooth"
+
+    - id: sawtooth-platform-template
+      name: "sawtooth-platform"
+      description: |
+        Hyperledger Sawtooth platform cluster.
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      itemType: template
+      item:
+        services:
+          - type: sawtooth-platform-application
+            name: "sawtooth-platform-application"
 
             brooklyn.config:
               sawtooth.version: "1.0.3"

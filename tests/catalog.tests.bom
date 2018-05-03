@@ -1,10 +1,10 @@
 brooklyn.catalog:
-  version: "0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+  version: "0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
   itemType: entity
   brooklyn.libraries:
-    - url: "mvn:io.brooklyn.hyperledger/sawtooth/0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+    - url: "mvn:io.brooklyn.hyperledger/sawtooth/0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
       name: io.brooklyn.hyperledger.sawtooth
-      version: 0.5.0-SNAPSHOT # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+      version: 0.5.0-SNAPSHOT # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
 
   items:
     - "https://raw.githubusercontent.com/brooklyncentral/common-catalog-utils/master/common-tests/src/main/resources/commontests/common.tests.bom"
@@ -16,9 +16,9 @@ brooklyn.catalog:
           Hyperledger Sawtooth blockchain network in a single Amazon region.
 
         services:
-          - type: sawtooth-cluster-application
-            id: hyperledger-sawtooth-cluster
-            name: "hyperledger-sawtooth-cluster"
+          - type: sawtooth-platform-application
+            id: hyperledger-sawtooth-platform
+            name: "hyperledger-sawtooth-platform"
 
             brooklyn.config:
               sawtooth.version: "1.0.3"
@@ -35,7 +35,7 @@ brooklyn.catalog:
             brooklyn.config:
               targetResolutionTimeout: 10s
               timeout: 30m
-              targetId: hyperledger-sawtooth-cluster
+              targetId: hyperledger-sawtooth-platform
               serverNodeId: sawtooth-server-node
 
             brooklyn.children:

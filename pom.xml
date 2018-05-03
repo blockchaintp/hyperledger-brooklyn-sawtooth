@@ -6,7 +6,7 @@
     <groupId>io.brooklyn.hyperledger</groupId>
     <artifactId>sawtooth</artifactId>
     <packaging>bundle</packaging>
-    <version>0.5.0-SNAPSHOT</version> <!-- BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION -->
+    <version>0.5.0-SNAPSHOT</version> <!-- HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION -->
 
     <name>Brooklyn :: Hyperledger :: Sawtooth</name>
     <description>Apache Brooklyn blueprint to deploy and manage Hyperledger Sawtooth</description>
@@ -120,9 +120,14 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.basedir}/catalog/sawtooth/sawtooth.bom</file>
+                                    <file>${project.basedir}/catalog/sawtooth/sawtooth-core.bom</file>
                                     <type>bom</type>
-                                    <classifier>sawtooth</classifier>
+                                    <classifier>sawtooth-core</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.basedir}/catalog/sawtooth/sawtooth-extras.bom</file>
+                                    <type>bom</type>
+                                    <classifier>sawtooth-extras</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>${project.build.outputDirectory}/feature.xml</file>
