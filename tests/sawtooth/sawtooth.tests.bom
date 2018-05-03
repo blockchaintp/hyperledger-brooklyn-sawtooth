@@ -1,5 +1,5 @@
 brooklyn.catalog:
-  version: "0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+  version: "0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
   itemType: entity
 
   items:
@@ -60,3 +60,61 @@ brooklyn.catalog:
                 assert:
                   - contains: $brooklyn:component($brooklyn:config("targetId")).config("sawtooth.network")
 
+          - id: test-rethink
+            name: "RethinkDB URI OK"
+            type: test-case
+            brooklyn.children:
+              - type: test-http-status-200
+                brooklyn.config:
+                  url: $brooklyn:component($brooklyn:config("serverNodeId")).attributeWhenReady("sawtooth.rethinkdb.uri")
+
+          - id: test-next-directory-api
+            name: "Next Directory API URI OK"
+            type: test-case
+            brooklyn.children:
+            - type: org.apache.brooklyn.test.framework.TestHttpCall
+              name: "Check HTTP Response Status Code"
+              brooklyn.config:
+                url:
+                  $brooklyn:formatString:
+                    - "%s/api/users"
+                    - $brooklyn:component($brooklyn:config("serverNodeId")).attributeWhenReady("sawtooth.hyperdirectory-api.uri")
+                applyAssertionTo: status
+                assert:
+                  equals: 401
+
+          - id: test-sawtooth-account
+            name: "Check sawtooth.seth.account eventually has value"
+            type: test-case
+            brooklyn.children:
+              - type: assert-sensor
+                target: $brooklyn:component($brooklyn:config("serverNodeId"))
+                sensor: sawtooth.seth.account
+                assert:
+                  - notEmpty: true
+
+          - id: test-main-uri-naming
+            name: "Main.uri contains block-info"
+            type: test-case
+            brooklyn.children:
+              - type: assert-sensor
+                target: $brooklyn:component($brooklyn:config("targetId"))
+                sensor: main.uri
+                assert:
+                  - contains: "blocks"
+
+          - id: test-rpc-endpoint
+            name: "Test rpc endpoint"
+            type: test-case
+            brooklyn.children:
+              - type: test-http
+                brooklyn.config:
+                  maxAttempts: 1
+                  url: $brooklyn:component($brooklyn:config("serverNodeId")).attributeWhenReady("sawtooth.seth-rpc.uri")
+                  applyAssertionTo: body
+                  method: POST
+                  headers:
+                    Content-Type: application/json
+                  body: "{\"jsonrpc\":\"2.0\", \"id\":1, \"method\":\"eth_blockNumber\"}"
+                  assert:
+                  - contains: result

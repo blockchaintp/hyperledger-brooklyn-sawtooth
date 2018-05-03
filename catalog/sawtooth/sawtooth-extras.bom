@@ -1,0 +1,377 @@
+brooklyn.catalog:
+  version: "0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
+  publish:
+    description: |
+      Entities for Hyperledger Sawtooth with additional components.
+    license_code: APACHE-2.0
+    icon_url: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+
+  items:
+    - id: sawtooth-platform-application
+      description: |
+        The Hyperledger Sawtooth network and supporting components.
+      itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      item:
+        type: org.apache.brooklyn.entity.stock.BasicApplication
+        name: "sawtooth-platform-application"
+
+        brooklyn.parameters:
+          - name: sawtooth.version
+            description: "Sawtooth Version"
+            type: string
+            default: "latest"
+          - name: sawtooth.repository
+            description: "Sawtooth Repository"
+            type: string
+            default: "sawtooth"
+          - name: sawtooth.size
+            description: "Cluster Size"
+            type: integer
+            default: 2
+            constraints:
+              - required
+          - name: sawtooth.network
+            description: "Network Name"
+            type: string
+            default: "sawtooth"
+          - name: sawtooth.network.cidr
+            description: "Network CIDR"
+            type: string
+            default: "10.0.0.0/24"
+          - name: sawtooth.network.gw
+            description: "Network Gateway"
+            type: string
+            default: "10.0.0.1"
+          - name: sawtooth.cluster.name
+            description: "Cluster Name"
+            type: string
+            default: "sawtooth"
+          - name: sawtooth.transaction-processors.spec
+            label: Sawtooth Transaction Processors
+            description: |
+              An EntitySpec for the set of Sawtooth Transaction Processors to create initially
+            type: org.apache.brooklyn.api.entity.EntitySpec
+            default:
+              $brooklyn:entitySpec:
+                type: sawtooth-seth-rbac-transaction-processors
+
+        brooklyn.children:
+          - type: etcd-node
+            name: "etcd-node"
+            id: etcd-node
+            brooklyn.config:
+              pre.install.command: |
+                sudo yum update -y nss nss-util nspr curl
+          - type: sawtooth-platform-server-node
+            name: "sawtooth-platform-server-node"
+            id: sawtooth-platform-server-node
+            brooklyn.config:
+              cluster.endpoint:
+                $brooklyn:sibling("etcd-node").attributeWhenReady("etcd.authority")
+          - type: sawtooth-validator-cluster
+            name: "sawtooth-validator-cluster"
+            id: sawtooth-validator-cluster
+            brooklyn.config:
+              cluster.endpoint:
+                $brooklyn:sibling("etcd-node").attributeWhenReady("etcd.authority")
+              latch.launch:
+                $brooklyn:ancestor("sawtooth-validator-cluster").sibling("sawtooth-platform-server-node").attributeWhenReady("service.isUp")
+              sawtooth.seed.network: $brooklyn:config("sawtooth.network")
+              sawtooth.seed.validator:
+                $brooklyn:formatString:
+                  - "validator.%s"
+                  - $brooklyn:config("sawtooth.network")
+
+        brooklyn.enrichers:
+          - type: org.apache.brooklyn.enricher.stock.Propagator
+            brooklyn.config:
+              uniqueTag: rest-api-main-uri-propagator
+              producer: $brooklyn:component("sawtooth-platform-server-node")
+              sensorMapping:
+                $brooklyn:sensor("sawtooth.rest-api.uri"): $brooklyn:sensor("main.uri")
+
+    - id: sawtooth-platform-server-node
+      description: |
+        The Hyperledger Sawtooth platform server node.
+      itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      item:
+        type: sawtooth-server-node
+        name: "sawtooth-platform-server-node"
+
+        brooklyn.children:
+          - type: rbac-server
+            name: "rbac-server"
+            id: rbac-server
+            brooklyn.config:
+              latch.launch: $brooklyn:sibling("ledger-sync").attributeWhenReady("service.isUp")
+          - type: rethinkdb
+            name: "rethinkdb"
+            id: rethinkdb
+            brooklyn.config:
+              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
+          - type: ledger-sync
+            name: "ledger-sync"
+            id: ledger-sync
+            brooklyn.config:
+              latch.launch: $brooklyn:sibling("rethinkdb").attributeWhenReady("service.isUp")
+          - type: rbac-ui
+            name: "rbac-ui"
+            id: rbac-ui
+            brooklyn.config:
+              latch.launch: $brooklyn:sibling("rbac-server").attributeWhenReady("service.isUp")
+          - type: sawtooth-explorer
+            name: "sawtooth-explorer"
+            id: sawtooth-explorer
+            brooklyn.config:
+              latch.launch: $brooklyn:sibling("sawtooth-rest-api").attributeWhenReady("service.isUp")
+
+        brooklyn.initializers:
+          - type: org.apache.brooklyn.core.sensor.StaticSensor
+            brooklyn.config:
+              name: sawtooth.rethinkdb.uri
+              static.value:
+                $brooklyn:formatString:
+                  - "http://%s:9090"
+                  - $brooklyn:attributeWhenReady("host.address")
+          - type: org.apache.brooklyn.core.sensor.StaticSensor
+            brooklyn.config:
+              name: sawtooth.hyperdirectory-ui.uri
+              static.value:
+                $brooklyn:formatString:
+                  - "http://%s:4200"
+                  - $brooklyn:attributeWhenReady("host.address")
+          - type: org.apache.brooklyn.core.sensor.StaticSensor
+            brooklyn.config:
+              name: sawtooth.hyperdirectory-api.uri
+              static.value:
+                $brooklyn:formatString:
+                  - "http://%s:8000"
+                  - $brooklyn:attributeWhenReady("host.address")
+          - type: org.apache.brooklyn.core.sensor.StaticSensor
+            brooklyn.config:
+              name: sawtooth.sawtooth.explorer.uri
+              static.value:
+                $brooklyn:formatString:
+                  - "http://%s:4201"
+                  - $brooklyn:attributeWhenReady("host.address")
+
+    - id: sawtooth-seth-rbac-transaction-processors
+      description: |
+        The Hyperledger Sawtooth with Seth and RBAC transaction processors
+      itemType: entity
+      item:
+        type: sawtooth-seth-transaction-processors
+        name: "sawtooth-seth-rbac-transaction-processors"
+        brooklyn.children:
+          - type: rbac-tp
+            name: "rbac-tp"
+            id: rbac-tp
+
+    - id: rbac-server
+      description: |
+        The Hyperledger Sawtooth RBAC server container.
+      itemType: entity
+      item:
+        type: sawtooth-docker-container
+        name: "rbac-server"
+
+        brooklyn.config:
+          container.name: "rbac-server"
+          image.name: "rbac-server-production"
+          image.version: $brooklyn:config("sawtooth.version")
+          image.repository: $brooklyn:config("sawtooth.repository")
+
+          shell.env:
+            NODE: $brooklyn:config("sawtooth.node")
+            INSTALL_DIR: $brooklyn:attributeWhenReady("install.dir")
+            RUN_DIR: $brooklyn:attributeWhenReady("run.dir")
+
+          files.install:
+            "classpath://io.brooklyn.hyperledger.sawtooth:scripts/setup_rbac": setup_rbac
+
+          customize.command: |
+            mkdir ${RUN_DIR}/bin
+            mv ${INSTALL_DIR}/setup_rbac ${RUN_DIR}/bin
+            chmod 755 ${RUN_DIR}/bin/setup_rbac
+
+          launch.command: |
+            docker run \
+                --name=${CONTAINER_NAME} \
+                --restart=always \
+                --network ${NETWORK} \
+                -d \
+                -p 8000:8000 \
+                ${CONTAINER_OPTIONS} \
+                ${IMAGE} \
+                bash -c "\
+                    ./bin/rbac-server \
+                      --host 0.0.0.0 \
+                      --db-host rethinkdb.${NETWORK} \
+                      --validator-host ${NODE}.${NETWORK}"
+
+          post.launch.command: |
+            docker run \
+                --name=setup_rbac \
+                --network ${NETWORK} \
+                -v "${RUN_DIR}/bin:/bin" \
+                python:3.6.5-slim \
+                ./bin/setup_rbac \
+                    --host rbac-server.${NETWORK}
+
+    - id: rethinkdb
+      description: |
+        The Hyperledger Sawtooth RethinkDB RBAC database container.
+      itemType: entity
+      item:
+        type: sawtooth-docker-container
+        name: "rethinkdb"
+
+        brooklyn.config:
+          container.name: "rethinkdb"
+          image.name: "rethinkdb"
+          image.version: "2.3"
+          image.repository: "library"
+
+          launch.command: |
+            docker run \
+                --name=${CONTAINER_NAME} \
+                --restart=always \
+                --network ${NETWORK} \
+                -d \
+                -p 9090:8080 \
+                ${CONTAINER_OPTIONS} \
+                ${IMAGE} \
+                rethinkdb --bind all
+
+    - id: rbac-tp
+      description: |
+        The Hyperledger Sawtooth RBAC transaction processor container.
+      itemType: entity
+      item:
+        type: sawtooth-docker-container
+        name: "rbac-tp"
+
+        brooklyn.config:
+          container.name:
+            $brooklyn:formatString:
+              - "rbac-tp-%s"
+              - $brooklyn:attributeWhenReady("entity.id")
+          image.name: "rbac-tp-production"
+          image.version: $brooklyn:config("sawtooth.version")
+          image.repository: $brooklyn:config("sawtooth.repository")
+
+          shell.env:
+            NODE: $brooklyn:config("sawtooth.node")
+
+          launch.command: |
+            docker run \
+                --name=${CONTAINER_NAME} \
+                --restart=always \
+                --network ${NETWORK} \
+                -d \
+                -p 4004 \
+                ${CONTAINER_OPTIONS} \
+                ${IMAGE} \
+                bin/rbac-tp -vv tcp://${NODE}.${NETWORK}:4004
+
+    - id: ledger-sync
+      description: |
+        The Hyperledger Sawtooth RBAC ledger sync container.
+      itemType: entity
+      item:
+        type: sawtooth-docker-container
+        name: "ledger-sync"
+
+        brooklyn.config:
+          container.name: "ledger-sync"
+          image.name: "rbac-ledger-sync-production"
+          image.version: $brooklyn:config("sawtooth.version")
+          image.repository: $brooklyn:config("sawtooth.repository")
+
+          shell.env:
+            NODE: $brooklyn:config("sawtooth.node")
+
+          launch.command: |
+            docker run \
+                --name=${CONTAINER_NAME} \
+                --restart=always \
+                --network ${NETWORK} \
+                -d \
+                -p 4004 \
+                ${CONTAINER_OPTIONS} \
+                ${IMAGE} \
+                bash -c "\
+                    bin/setup_db --host rethinkdb.${NETWORK} && \
+                    bin/rbac-ledger-sync -vv \
+                      --db-host rethinkdb.${NETWORK} \
+                      --validator tcp://${NODE}.${NETWORK}:4004"
+
+    - id: rbac-ui
+      description: |
+        The Hyperledger Sawtooth RBAC UI container.
+      itemType: entity
+      item:
+        type: sawtooth-docker-container
+        name: "rbac-ui"
+
+        brooklyn.config:
+          container.name: "rbac-ui"
+          image.name: "rbac-ui-production"
+          image.version: $brooklyn:config("sawtooth.version")
+          image.repository: $brooklyn:config("sawtooth.repository")
+
+          launch.command: |
+            docker run \
+                --name=${CONTAINER_NAME} \
+                --restart=always \
+                --network ${NETWORK} \
+                -d \
+                -e RBAC_SERVER=${HOST_ADDRESS} \
+                -p 4200:4200 \
+                ${CONTAINER_OPTIONS} \
+                ${IMAGE}
+
+        brooklyn.initializers:
+          - type: org.apache.brooklyn.core.sensor.StaticSensor
+            brooklyn.config:
+              name: rbac.ui.uri
+              static.value:
+                $brooklyn:formatString:
+                  - "http://%s:4200"
+                  - $brooklyn:attributeWhenReady("host.address")
+
+    - id: sawtooth-explorer
+      description: |
+        The Hyperledger Sawtooth Explorer container.
+      itemType: entity
+      item:
+        type: sawtooth-docker-container
+        name: "sawtooth-explorer"
+
+        brooklyn.config:
+          container.name: "sawtooth-explorer"
+          image.name: "sawtooth-explorer"
+          image.version: $brooklyn:config("sawtooth.version")
+          image.repository: $brooklyn:config("sawtooth.repository")
+
+          launch.command: |
+            docker run \
+                --name=${CONTAINER_NAME} \
+                --restart=always \
+                --network ${NETWORK} \
+                -d \
+                -e SAWTOOTH_REST_API=${HOST_ADDRESS} \
+                -p 4201:4201 \
+                ${CONTAINER_OPTIONS} \
+                ${IMAGE}
+
+        brooklyn.initializers:
+          - type: org.apache.brooklyn.core.sensor.StaticSensor
+            brooklyn.config:
+              name: sawtooth.explorer.uri
+              static.value:
+                $brooklyn:formatString:
+                  - "http://%s:4201"
+                  - $brooklyn:attributeWhenReady("host.address")
