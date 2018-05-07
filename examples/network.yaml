@@ -10,7 +10,7 @@ services:
     location: <add-main-location-here>
 
     brooklyn.config:
-      sawtooth.version: "1.0.3"
+      sawtooth.version: "1.0.5"
       sawtooth.repository: "blockchaintp"
       sawtooth.size: 9
       sawtooth.network: "central"
@@ -28,11 +28,11 @@ services:
     location: <add-remote-location-here>
 
     brooklyn.config:
-      sawtooth.version: "1.0.3"
+      sawtooth.version: "1.0.5"
       sawtooth.repository: "blockchaintp"
       sawtooth.size: 4
       sawtooth.network: "remote.one"
-      sawtooth.network.cidr: "10.1.1.0.34"
+      sawtooth.network.cidr: "10.1.1.0/24"
       sawtooth.network.gw: "10.1.1.1"
       sawtooth.cluster.name: "sawtooth"
       sawtooth.seed.network:
@@ -54,7 +54,7 @@ services:
     location: <add-remote-location-here>
 
     brooklyn.config:
-      sawtooth.version: "1.0.3"
+      sawtooth.version: "1.0.5"
       sawtooth.repository: "blockchaintp"
       sawtooth.size: 4
       sawtooth.network: "remote.two"
