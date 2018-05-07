@@ -97,7 +97,7 @@ brooklyn.catalog:
       itemType: entity
       iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
-        type: sawtooth-server-node
+        type: sawtooth-seth-server-node
         name: "sawtooth-platform-server-node"
 
         brooklyn.children:
