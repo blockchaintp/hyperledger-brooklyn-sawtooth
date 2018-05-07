@@ -17,9 +17,6 @@ services:
       sawtooth.network.cidr: "10.0.0.0/22"
       sawtooth.network.gw: "10.0.0.1"
       sawtooth.cluster.name: "sawtooth"
-      sawtooth.transaction-processors.spec:
-        $brooklyn:entitySpec:
-          type: sawtooth-seth-transaction-processors
       provisioning.properties:
         minDisk: "64g"
         minCores: 2
@@ -38,9 +35,6 @@ services:
       sawtooth.network.cidr: "10.1.1.0.34"
       sawtooth.network.gw: "10.1.1.1"
       sawtooth.cluster.name: "sawtooth"
-      sawtooth.transaction-processors.spec:
-        $brooklyn:entitySpec:
-          type: sawtooth-seth-transaction-processors
       sawtooth.seed.network:
         $brooklyn:component("sawtooth-seth-central-cluster").config("sawtooth.network")
       sawtooth.seed.network.cidr:
@@ -67,9 +61,6 @@ services:
       sawtooth.network.cidr: "10.1.2.0/24"
       sawtooth.network.gw: "10.1.2.1"
       sawtooth.cluster.name: "sawtooth"
-      sawtooth.transaction-processors.spec:
-        $brooklyn:entitySpec:
-          type: sawtooth-seth-transaction-processors
       sawtooth.seed.network:
         $brooklyn:component("sawtooth-seth-central-cluster").config("sawtooth.network")
       sawtooth.seed.network.cidr:
