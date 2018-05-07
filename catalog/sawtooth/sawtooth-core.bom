@@ -392,7 +392,6 @@ brooklyn.catalog:
           - type: sawtooth-seth-transaction-processors
             name: "sawtooth-seth-transaction-processors"
             id: sawtooth-seth-transaction-processors
-
             brooklyn.children:
               - type: sawtooth-seth-accounts
                 name: "sawtooth-seth-accounts"
