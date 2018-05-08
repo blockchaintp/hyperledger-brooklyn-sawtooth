@@ -1,65 +1,19 @@
 brooklyn.catalog:
   version: "0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
   itemType: entity
+  brooklyn.libraries:
+    - url: "mvn:io.brooklyn.hyperledger/sawtooth/0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
+      name: io.brooklyn.hyperledger.sawtooth
+      version: 0.5.0-SNAPSHOT # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
 
   items:
     - "https://raw.githubusercontent.com/brooklyncentral/common-catalog-utils/master/common-tests/src/main/resources/commontests/common.tests.bom"
 
-    - id: sawtooth-tests
+    - id: sawtooth-platform-tests
       item:
-        type: test-case
+        type: sawtooth-tests
+
         brooklyn.children:
-
-          - id: test-up
-            type: test-case
-            name: "Cluster up and running"
-            brooklyn.children:
-              - type: assert-up-and-running-initial
-
-          - id: test-main
-            name: "Main URI OK"
-            type: test-case
-            brooklyn.children:
-              - type: test-http-status-200
-                brooklyn.config:
-                  url: $brooklyn:component($brooklyn:config("targetId")).attributeWhenReady("main.uri")
-
-          - id: test-grafana
-            name: "Grafana URI OK"
-            type: test-case
-            brooklyn.children:
-              - type: test-http-status-200
-                brooklyn.config:
-                  url: $brooklyn:component($brooklyn:config("serverNodeId")).attributeWhenReady("sawtooth.grafana.uri")
-
-          - id: assert-validator-keys
-            name: "Check validator keys have values"
-            type: test-case
-            brooklyn.children:
-              - type: assert-sensor
-                name: "Check sawtooth.key.private has value"
-                target: $brooklyn:component($brooklyn:config("serverNodeId")).descendant("sawtooth-validator")
-                sensor: sawtooth.key.private
-                assert:
-                  - notEmpty: true
-
-              - type: assert-sensor
-                name: "Check sawtooth.key.public has value"
-                target: $brooklyn:component($brooklyn:config("serverNodeId")).descendant("sawtooth-validator")
-                sensor: sawtooth.key.public
-                assert:
-                  - notEmpty: true
-
-          - id: test-network
-            name: "Sawtooth.name contains value of sawtooth.network"
-            type: test-case
-            brooklyn.children:
-              - type: assert-sensor
-                target: $brooklyn:component($brooklyn:config("serverNodeId"))
-                sensor: sawtooth.name
-                assert:
-                  - contains: $brooklyn:component($brooklyn:config("targetId")).config("sawtooth.network")
-
           - id: test-rethink
             name: "RethinkDB URI OK"
             type: test-case
@@ -78,7 +32,7 @@ brooklyn.catalog:
                 url:
                   $brooklyn:formatString:
                     - "%s/api/users"
-                    - $brooklyn:component($brooklyn:config("serverNodeId")).attributeWhenReady("sawtooth.hyperdirectory-api.uri")
+                    - $brooklyn:component($brooklyn:config("serverNodeId")).attributeWhenReady("sawtooth.next-directory-api.uri")
                 applyAssertionTo: status
                 assert:
                   equals: 401
@@ -93,8 +47,8 @@ brooklyn.catalog:
                 assert:
                   - notEmpty: true
 
-          - id: test-main-uri-naming
-            name: "Main.uri contains block-info"
+          - id: test-main-uri-naming-rbac
+            name: "Main.uri contains rbac"
             type: test-case
             brooklyn.children:
               - type: assert-sensor
@@ -102,6 +56,7 @@ brooklyn.catalog:
                 sensor: main.uri
                 assert:
                   - contains: "blocks"
+                  # TODO should check returned CONTENTS of a GET on main.uri
 
           - id: test-rpc-endpoint
             name: "Test rpc endpoint"

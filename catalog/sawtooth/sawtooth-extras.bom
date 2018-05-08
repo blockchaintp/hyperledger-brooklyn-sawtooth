@@ -136,14 +136,14 @@ brooklyn.catalog:
                   - $brooklyn:attributeWhenReady("host.address")
           - type: org.apache.brooklyn.core.sensor.StaticSensor
             brooklyn.config:
-              name: sawtooth.hyperdirectory-ui.uri
+              name: sawtooth.next-directory-ui.uri
               static.value:
                 $brooklyn:formatString:
                   - "http://%s:4200"
                   - $brooklyn:attributeWhenReady("host.address")
           - type: org.apache.brooklyn.core.sensor.StaticSensor
             brooklyn.config:
-              name: sawtooth.hyperdirectory-api.uri
+              name: sawtooth.next-directory-api.uri
               static.value:
                 $brooklyn:formatString:
                   - "http://%s:8000"
@@ -222,7 +222,7 @@ brooklyn.catalog:
             RUN_DIR: $brooklyn:attributeWhenReady("run.dir")
 
           files.install:
-            "classpath://io.brooklyn.hyperledger.sawtooth:scripts/setup_rbac": setup_rbac
+            "classpath://io.brooklyn.hyperledger.sawtooth:sawtooth/setup_rbac": setup_rbac
 
           customize.command: |
             mkdir ${RUN_DIR}/bin
