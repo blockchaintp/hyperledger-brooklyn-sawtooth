@@ -76,8 +76,9 @@
                 <filtering>false</filtering>
             </resource>
             <resource>
-                <directory>sawtooth-tests/common</directory>
+                <directory>tests</directory>
                 <filtering>false</filtering>
+                <targetPath>tests</targetPath>
             </resource>
         </resources>
         <pluginManagement>
