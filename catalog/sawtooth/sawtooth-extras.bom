@@ -47,14 +47,6 @@ brooklyn.catalog:
             description: "Cluster Name"
             type: string
             default: "sawtooth"
-          - name: sawtooth.transaction-processors.spec
-            label: Sawtooth Transaction Processors
-            description: |
-              An EntitySpec for the set of Sawtooth Transaction Processors to create initially
-            type: org.apache.brooklyn.api.entity.EntitySpec
-            default:
-              $brooklyn:entitySpec:
-                type: sawtooth-seth-rbac-transaction-processors
 
         brooklyn.children:
           - type: etcd-node
@@ -73,6 +65,10 @@ brooklyn.catalog:
             name: "sawtooth-validator-cluster"
             id: sawtooth-validator-cluster
             brooklyn.config:
+              dynamiccluster.memberspec:
+                $brooklyn:entitySpec:
+                  type: sawtooth-platform-validator-node
+                  name: "sawtooth-platform-validator-node"
               cluster.endpoint:
                 $brooklyn:sibling("etcd-node").attributeWhenReady("etcd.authority")
               latch.launch:
@@ -97,10 +93,13 @@ brooklyn.catalog:
       itemType: entity
       iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
-        type: sawtooth-server-node
+        type: sawtooth-seth-server-node
         name: "sawtooth-platform-server-node"
 
         brooklyn.children:
+          - type: sawtooth-rbac-transaction-processors
+            name: "sawtooth-rbac-transaction-processors"
+            id: sawtooth-rbac-transaction-processors
           - type: rbac-server
             name: "rbac-server"
             id: rbac-server
@@ -157,17 +156,34 @@ brooklyn.catalog:
                   - "http://%s:4201"
                   - $brooklyn:attributeWhenReady("host.address")
 
-    - id: sawtooth-seth-rbac-transaction-processors
+    - id: sawtooth-rbac-transaction-processors
       description: |
-        The Hyperledger Sawtooth with Seth and RBAC transaction processors
+        The Hyperledger Sawtooth RBAC transaction processors
       itemType: entity
       item:
-        type: sawtooth-seth-transaction-processors
-        name: "sawtooth-seth-rbac-transaction-processors"
+        type: empty-software-process
+        name: "sawtooth-rbac-transaction-processors"
         brooklyn.children:
           - type: rbac-tp
             name: "rbac-tp"
             id: rbac-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
+
+    - id: sawtooth-platform-validator-node
+      description: |
+        A Hyperledger Sawtooth platform validator node.
+      itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      item:
+        type: sawtooth-seth-validator-node
+        name: "sawtooth-platform-validator-node"
+
+        brooklyn.children:
+          - type: sawtooth-rbac-transaction-processors
+            name: "sawtooth-rbac-transaction-processors"
+            id: sawtooth-rbac-transaction-processors
 
     - id: rbac-server
       description: |

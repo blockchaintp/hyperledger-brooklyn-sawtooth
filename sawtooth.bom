@@ -60,6 +60,27 @@ brooklyn.catalog:
               sawtooth.cluster.name: "brooklyn"
               sawtooth.seed.network: "sawtooth"
 
+    - id: sawtooth-seth-cluster-template
+      name: "sawtooth-seth-cluster"
+      description: |
+        Hyperledger Sawtooth Seth cluster.
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      itemType: template
+      item:
+        services:
+          - type: sawtooth-seth-cluster-application
+            name: "sawtooth-seth-cluster-application"
+
+            brooklyn.config:
+              sawtooth.version: "1.0.3"
+              sawtooth.repository: "sawtooth"
+              sawtooth.size: 3
+              sawtooth.network: "remote"
+              sawtooth.network.cidr: "10.1.1.0/24"
+              sawtooth.network.gw: "10.1.1.1"
+              sawtooth.cluster.name: "brooklyn"
+              sawtooth.seed.network: "sawtooth"
+
     - id: sawtooth-platform-template
       name: "sawtooth-platform"
       description: |

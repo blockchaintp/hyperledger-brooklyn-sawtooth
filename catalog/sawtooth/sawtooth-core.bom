@@ -37,14 +37,6 @@ brooklyn.catalog:
             description: "Network Gateway"
             type: string
             default: "10.0.0.1"
-          - name: sawtooth.transaction-processors.spec
-            label: Sawtooth Transaction Processors
-            description: |
-              An EntitySpec for the set of Sawtooth Transaction Processors to create initially
-            type: org.apache.brooklyn.api.entity.EntitySpec
-            default:
-              $brooklyn:entitySpec:
-                type: sawtooth-transaction-processors
 
         brooklyn.children:
           - type: sawtooth-server-node
@@ -58,6 +50,52 @@ brooklyn.catalog:
             brooklyn.config:
               uniqueTag: rest-api-main-uri-propagator
               producer: $brooklyn:component("sawtooth-server-node")
+              sensorMapping:
+                $brooklyn:sensor("sawtooth.rest-api.uri"): $brooklyn:sensor("main.uri")
+
+    - id: sawtooth-seth-standalone-server-application
+      description: |
+        Hyperledger Sawtooth Seth standalone server application.
+      itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      item:
+        type: org.apache.brooklyn.entity.stock.BasicApplication
+        name: "sawtooth-seth-standalone-server-application"
+
+        brooklyn.parameters:
+          - name: sawtooth.version
+            description: "Sawtooth Version"
+            type: string
+            default: "latest"
+          - name: sawtooth.repository
+            description: "Sawtooth Repository"
+            type: string
+            default: "sawtooth"
+          - name: sawtooth.network
+            description: "Network Name"
+            type: string
+            default: "sawtooth"
+          - name: sawtooth.network.cidr
+            description: "Network CIDR"
+            type: string
+            default: "10.0.0.0/24"
+          - name: sawtooth.network.gw
+            description: "Network Gateway"
+            type: string
+            default: "10.0.0.1"
+
+        brooklyn.children:
+          - type: sawtooth-seth-server-node
+            name: "sawtooth-seth-server-node"
+            id: sawtooth-seth-server-node
+            brooklyn.config:
+              full.cluster: false
+
+        brooklyn.enrichers:
+          - type: org.apache.brooklyn.enricher.stock.Propagator
+            brooklyn.config:
+              uniqueTag: rest-api-main-uri-propagator
+              producer: $brooklyn:component("sawtooth-seth-server-node")
               sensorMapping:
                 $brooklyn:sensor("sawtooth.rest-api.uri"): $brooklyn:sensor("main.uri")
 
@@ -101,14 +139,6 @@ brooklyn.catalog:
             description: "Cluster Name"
             type: string
             default: "sawtooth"
-          - name: sawtooth.transaction-processors.spec
-            label: Sawtooth Transaction Processors
-            description: |
-              An EntitySpec for the set of Sawtooth Transaction Processors to create initially
-            type: org.apache.brooklyn.api.entity.EntitySpec
-            default:
-              $brooklyn:entitySpec:
-                type: sawtooth-transaction-processors
 
         brooklyn.children:
           - type: etcd-node
@@ -142,6 +172,86 @@ brooklyn.catalog:
             brooklyn.config:
               uniqueTag: rest-api-main-uri-propagator
               producer: $brooklyn:component("sawtooth-server-node")
+              sensorMapping:
+                $brooklyn:sensor("sawtooth.rest-api.uri"): $brooklyn:sensor("main.uri")
+
+    - id: sawtooth-seth-cluster-application
+      description: |
+        Hyperledger Sawtooth Seth cluster application.
+      itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      item:
+        type: org.apache.brooklyn.entity.stock.BasicApplication
+        name: "sawtooth-seth-cluster-application"
+
+        brooklyn.parameters:
+          - name: sawtooth.version
+            description: "Sawtooth Version"
+            type: string
+            default: "latest"
+          - name: sawtooth.repository
+            description: "Sawtooth Repository"
+            type: string
+            default: "sawtooth"
+          - name: sawtooth.size
+            description: "Cluster Size"
+            type: integer
+            default: 2
+            constraints:
+              - required
+          - name: sawtooth.network
+            description: "Network Name"
+            type: string
+            default: "sawtooth"
+          - name: sawtooth.network.cidr
+            description: "Network CIDR"
+            type: string
+            default: "10.0.0.0/24"
+          - name: sawtooth.network.gw
+            description: "Network Gateway"
+            type: string
+            default: "10.0.0.1"
+          - name: sawtooth.cluster.name
+            description: "Cluster Name"
+            type: string
+            default: "sawtooth"
+
+        brooklyn.children:
+          - type: etcd-node
+            name: "etcd-node"
+            id: etcd-node
+            brooklyn.config:
+              pre.install.command: |
+                sudo yum update -y nss nss-util nspr curl
+          - type: sawtooth-seth-server-node
+            name: "sawtooth-seth-server-node"
+            id: sawtooth-seth-server-node
+            brooklyn.config:
+              cluster.endpoint:
+                $brooklyn:sibling("etcd-node").attributeWhenReady("etcd.authority")
+          - type: sawtooth-validator-cluster
+            name: "sawtooth-validator-cluster"
+            id: sawtooth-validator-cluster
+            brooklyn.config:
+              dynamiccluster.memberspec:
+                $brooklyn:entitySpec:
+                  type: sawtooth-seth-validator-node
+                  name: "sawtooth-seth-validator-node"
+              cluster.endpoint:
+                $brooklyn:sibling("etcd-node").attributeWhenReady("etcd.authority")
+              latch.launch:
+                $brooklyn:ancestor("sawtooth-validator-cluster").sibling("sawtooth-seth-server-node").attributeWhenReady("service.isUp")
+              sawtooth.seed.network: $brooklyn:config("sawtooth.network")
+              sawtooth.seed.validator:
+                $brooklyn:formatString:
+                  - "validator.%s"
+                  - $brooklyn:config("sawtooth.network")
+
+        brooklyn.enrichers:
+          - type: org.apache.brooklyn.enricher.stock.Propagator
+            brooklyn.config:
+              uniqueTag: rest-api-main-uri-propagator
+              producer: $brooklyn:component("sawtooth-seth-server-node")
               sensorMapping:
                 $brooklyn:sensor("sawtooth.rest-api.uri"): $brooklyn:sensor("main.uri")
 
@@ -226,16 +336,9 @@ brooklyn.catalog:
             id: sawtooth-validator
             brooklyn.config:
               latch.launch: $brooklyn:sibling("grafana").attributeWhenReady("service.isUp")
-          - type: conditional-entity
-            id: sawtooth-transaction-processors
+          - type: sawtooth-transaction-processors
             name: "sawtooth-transaction-processors"
-            brooklyn.config:
-              conditional.entity.create: true
-              conditional.entity.propagate: false
-              conditional.entity.spec: $brooklyn:config("sawtooth.transaction-processors.spec")
-              start.timeout: "forever"
-              latch.launch:
-                $brooklyn:ancestor("sawtooth-transaction-processors").sibling("sawtooth-validator").attributeWhenReady("service.isUp")
+            id: sawtooth-transaction-processors
 
         brooklyn.initializers:
           - type: org.apache.brooklyn.core.sensor.StaticSensor
@@ -251,13 +354,6 @@ brooklyn.catalog:
               static.value:
                 $brooklyn:formatString:
                   - "http://%s:8080/blocks"
-                  - $brooklyn:attributeWhenReady("host.address")
-          - type: org.apache.brooklyn.core.sensor.StaticSensor
-            brooklyn.config:
-              name: sawtooth.seth-rpc.uri
-              static.value:
-                $brooklyn:formatString:
-                  - "http://%s:3030/"
                   - $brooklyn:attributeWhenReady("host.address")
           - type: org.apache.brooklyn.core.sensor.ssh.SshCommandSensor
             brooklyn.config:
@@ -283,6 +379,51 @@ brooklyn.catalog:
               propagating:
                 - $brooklyn:sensor("sawtooth.name")
 
+    - id: sawtooth-seth-server-node
+      description: |
+        The Hyperledger Sawtooth Seth server node.
+      itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      item:
+        type: sawtooth-server-node
+        name: "sawtooth-seth-server-node"
+
+        brooklyn.children:
+          - type: sawtooth-seth-transaction-processors
+            name: "sawtooth-seth-transaction-processors"
+            id: sawtooth-seth-transaction-processors
+
+            brooklyn.children:
+              - type: sawtooth-seth-accounts
+                name: "sawtooth-seth-accounts"
+                id: sawtooth-seth-accounts
+                brooklyn.config:
+                  sawtooth.seth-tp: $brooklyn:sibling("sawtooth-seth-tp").config("container.name")
+                  post.launch.command: |
+                    if [ ! -f "${HOME}/data/brooklyn.pem" ] ; then
+                      docker exec --workdir /data ${CONTAINER_NAME} \
+                        bash -c "openssl ecparam -genkey -name secp256k1 | openssl ec -out brooklyn.pem" > /dev/null
+                      docker exec --workdir /data ${CONTAINER_NAME} \
+                        seth account import brooklyn.pem brooklyn > /dev/null
+                      docker exec --workdir /data ${CONTAINER_NAME} \
+                        seth account create --nonce=0 --wait brooklyn > ${HOME}/brooklyn.out
+                    fi
+              - type: sawtooth-seth-rpc
+                name: "sawtooth-seth-rpc"
+                id: sawtooth-seth-rpc
+                brooklyn.config:
+                  latch.launch: $brooklyn:sibling("sawtooth-seth-tp").attributeWhenReady("service.isUp")
+                  sawtooth.seth-tp: $brooklyn:sibling("sawtooth-seth-tp").config("container.name")
+
+        brooklyn.initializers:
+          - type: org.apache.brooklyn.core.sensor.StaticSensor
+            brooklyn.config:
+              name: sawtooth.seth-rpc.uri
+              static.value:
+                $brooklyn:formatString:
+                  - "http://%s:3030"
+                  - $brooklyn:attributeWhenReady("host.address")
+
     - id: sawtooth-validator-node
       description: |
         A Hyperledger Sawtooth validator node.
@@ -307,16 +448,9 @@ brooklyn.catalog:
           - type: sawtooth-validator
             name: "sawtooth-validator"
             id: sawtooth-validator
-          - type: conditional-entity
-            id: sawtooth-transaction-processors
+          - type: sawtooth-transaction-processors
             name: "sawtooth-transaction-processors"
-            brooklyn.config:
-              conditional.entity.create: true
-              conditional.entity.propagate: false
-              conditional.entity.spec: $brooklyn:config("sawtooth.transaction-processors.spec")
-              start.timeout: "forever"
-              latch.launch:
-                $brooklyn:ancestor("sawtooth-transaction-processors").sibling("sawtooth-validator").attributeWhenReady("service.isUp")
+            id: sawtooth-transaction-processors
 
         brooklyn.enrichers:
           - type: org.apache.brooklyn.enricher.stock.Propagator
@@ -325,6 +459,20 @@ brooklyn.catalog:
               producer: $brooklyn:child("sawtooth-validator")
               propagating:
                 - $brooklyn:sensor("sawtooth.name")
+
+    - id: sawtooth-seth-validator-node
+      description: |
+        A Hyperledger Sawtooth Seth validator node.
+      itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      item:
+        type: sawtooth-validator-node
+        name: "sawtooth-seth-validator-node"
+
+        brooklyn.children:
+          - type: sawtooth-seth-transaction-processors
+            name: "sawtooth-seth-transaction-processors"
+            id: sawtooth-seth-transaction-processors
 
     - id: sawtooth-transaction-processors
       description: |
@@ -337,43 +485,36 @@ brooklyn.catalog:
           - type: sawtooth-settings-tp
             name: "sawtooth-settings-tp"
             id: sawtooth-settings-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
           - type: sawtooth-identity-tp
             name: "sawtooth-identity-tp"
             id: sawtooth-identity-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
           - type: sawtooth-block-info-tp
             name: "sawtooth-block-info-tp"
             id: sawtooth-block-info-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
     - id: sawtooth-seth-transaction-processors
       description: |
-        Hyperledger Sawtooth with Seth transaction processors
+        Hyperledger Sawtooth Seth transaction processors
       itemType: entity
       item:
-        type: sawtooth-transaction-processors
+        type: empty-software-process
         name: "sawtooth-seth-transaction-processors"
         brooklyn.children:
           - type: sawtooth-seth-tp
             name: "sawtooth-seth-tp"
             id: sawtooth-seth-tp
-          - type: sawtooth-seth-accounts
-            name: "sawtooth-seth-accounts"
-            id: sawtooth-seth-accounts
             brooklyn.config:
-              sawtooth.seth-tp: $brooklyn:sibling("sawtooth-seth-tp").config("container.name")
-              post.launch.command: |
-                if [ ! -f "${HOME}/data/brooklyn.pem" ] ; then
-                  docker exec --workdir /data ${CONTAINER_NAME} \
-                    bash -c "openssl ecparam -genkey -name secp256k1 | openssl ec -out brooklyn.pem" > /dev/null
-                  docker exec --workdir /data ${CONTAINER_NAME} \
-                    seth account import brooklyn.pem brooklyn > /dev/null
-                  docker exec --workdir /data ${CONTAINER_NAME} \
-                    seth account create --nonce=0 --wait brooklyn > ${HOME}/brooklyn.out
-                fi
-          - type: sawtooth-seth-rpc
-            name: "sawtooth-seth-rpc"
-            id: sawtooth-seth-rpc
-            brooklyn.config:
-              sawtooth.seth-tp: $brooklyn:sibling("sawtooth-seth-tp").config("container.name")
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
     - id: sawtooth-workload-application
       description: |
