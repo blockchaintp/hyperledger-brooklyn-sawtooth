@@ -1,17 +1,14 @@
 brooklyn.catalog:
   version: "0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
   itemType: entity
-  brooklyn.libraries:
-    - url: "mvn:io.brooklyn.hyperledger/sawtooth/0.5.0-SNAPSHOT" # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
-      name: io.brooklyn.hyperledger.sawtooth
-      version: 0.5.0-SNAPSHOT # BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
 
   items:
+    - "classpath://io.brooklyn.hyperledger.sawtooth:common.tests.bom"
     - "https://raw.githubusercontent.com/brooklyncentral/common-catalog-utils/master/common-tests/src/main/resources/commontests/common.tests.bom"
-    - id: hyperledger-sawtooth-tests
+    - id: hyperledger-multinode-sawtooth-tests
       type: entity
       item:
-        name: "hyperledger-sawtooth-network"
+        name: "hyperledger-sawtooth-multinode-network"
         description: |
           Hyperledger Sawtooth blockchain network in a single Amazon region.
 
@@ -23,7 +20,7 @@ brooklyn.catalog:
             brooklyn.config:
               sawtooth.version: "1.0.3"
               sawtooth.repository: "blockchaintp"
-              sawtooth.size: 0
+              sawtooth.size: 3
               sawtooth.network: "blockchaintp.local"
               sawtooth.network.cidr: "10.10.10.0/24"
               sawtooth.network.gw: "10.10.10.1"

@@ -75,12 +75,11 @@
                 <directory>resources</directory>
                 <filtering>false</filtering>
             </resource>
+            <resource>
+                <directory>sawtooth-tests/common</directory>
+                <filtering>false</filtering>
+            </resource>
         </resources>
-        <testResources>
-            <testResource>
-                <directory>tests/common</directory>
-            </testResource>
-        </testResources>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -133,22 +132,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-              <artifactId>maven-jar-plugin</artifactId>
-              <executions>
-                <execution>
-                  <id>test-jar-creation</id>
-                  <goals>
-                    <goal>test-jar</goal>
-                  </goals>
-                  <configuration>
-                    <archive>
-                      <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                    </archive>
-                  </configuration>
-                </execution>
-              </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
