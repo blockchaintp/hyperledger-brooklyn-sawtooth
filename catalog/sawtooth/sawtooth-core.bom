@@ -339,8 +339,6 @@ brooklyn.catalog:
           - type: sawtooth-transaction-processors
             name: "sawtooth-transaction-processors"
             id: sawtooth-transaction-processors
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
         brooklyn.initializers:
           - type: org.apache.brooklyn.core.sensor.StaticSensor
@@ -394,8 +392,7 @@ brooklyn.catalog:
           - type: sawtooth-seth-transaction-processors
             name: "sawtooth-seth-transaction-processors"
             id: sawtooth-seth-transaction-processors
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
+
             brooklyn.children:
               - type: sawtooth-seth-accounts
                 name: "sawtooth-seth-accounts"
@@ -415,6 +412,7 @@ brooklyn.catalog:
                 name: "sawtooth-seth-rpc"
                 id: sawtooth-seth-rpc
                 brooklyn.config:
+                  latch.launch: $brooklyn:sibling("sawtooth-seth-tp").attributeWhenReady("service.isUp")
                   sawtooth.seth-tp: $brooklyn:sibling("sawtooth-seth-tp").config("container.name")
 
         brooklyn.initializers:
@@ -453,9 +451,6 @@ brooklyn.catalog:
           - type: sawtooth-transaction-processors
             name: "sawtooth-transaction-processors"
             id: sawtooth-transaction-processors
-            brooklyn.config:
-              latch.launch:
-                $brooklyn:ancestor("sawtooth-transaction-processors").sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
         brooklyn.enrichers:
           - type: org.apache.brooklyn.enricher.stock.Propagator
@@ -478,9 +473,6 @@ brooklyn.catalog:
           - type: sawtooth-seth-transaction-processors
             name: "sawtooth-seth-transaction-processors"
             id: sawtooth-seth-transaction-processors
-            brooklyn.config:
-              latch.launch:
-                $brooklyn:ancestor("sawtooth-seth-transaction-processors").sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
     - id: sawtooth-transaction-processors
       description: |
@@ -493,12 +485,21 @@ brooklyn.catalog:
           - type: sawtooth-settings-tp
             name: "sawtooth-settings-tp"
             id: sawtooth-settings-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
           - type: sawtooth-identity-tp
             name: "sawtooth-identity-tp"
             id: sawtooth-identity-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
           - type: sawtooth-block-info-tp
             name: "sawtooth-block-info-tp"
             id: sawtooth-block-info-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
     - id: sawtooth-seth-transaction-processors
       description: |
@@ -511,6 +512,9 @@ brooklyn.catalog:
           - type: sawtooth-seth-tp
             name: "sawtooth-seth-tp"
             id: sawtooth-seth-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
     - id: sawtooth-workload-application
       description: |

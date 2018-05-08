@@ -100,8 +100,6 @@ brooklyn.catalog:
           - type: sawtooth-rbac-transaction-processors
             name: "sawtooth-rbac-transaction-processors"
             id: sawtooth-rbac-transaction-processors
-            brooklyn.config:
-              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
           - type: rbac-server
             name: "rbac-server"
             id: rbac-server
@@ -169,6 +167,9 @@ brooklyn.catalog:
           - type: rbac-tp
             name: "rbac-tp"
             id: rbac-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
     - id: sawtooth-platform-validator-node
       description: |
@@ -183,9 +184,6 @@ brooklyn.catalog:
           - type: sawtooth-rbac-transaction-processors
             name: "sawtooth-rbac-transaction-processors"
             id: sawtooth-rbac-transaction-processors
-            brooklyn.config:
-              latch.launch:
-                $brooklyn:ancestor("sawtooth-rbac-transaction-processors").sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
     - id: rbac-server
       description: |
