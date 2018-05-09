@@ -17,12 +17,11 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
         <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
         <maven-bundle-plugin.version>3.2.0</maven-bundle-plugin.version>
-        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
         <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-        <gpg.passphrase/>
     </properties>
 
     <scm>
@@ -39,37 +38,11 @@
         </license>
     </licenses>
 
-    <repositories>
-        <!-- Cloudsoft repo, for early custom releases of jclouds vcloud-director etc -->
-        <repository>
-            <id>cloudsoft-releases</id>
-            <url>http://ccweb.cloudsoftcorp.com/maven/libs-release-local/</url>
-        </repository>
-        <repository>
-            <id>cloudsoft-snapshots</id>
-            <url>http://ccweb.cloudsoftcorp.com/maven/libs-snapshot-local/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>cloudsoft-developers</id>
-            <url>http://developers.cloudsoftcorp.com/download/maven2/</url>
-        </repository>
-    </repositories>
-
     <build>
         <resources>
             <resource>
                 <directory>catalog</directory>
                 <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>feature</directory>
-                <filtering>true</filtering>
             </resource>
             <resource>
                 <directory>resources</directory>
@@ -81,6 +54,7 @@
                 <targetPath>tests</targetPath>
             </resource>
         </resources>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -97,11 +71,6 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
                     <version>${buildnumber-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>${maven-gpg-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -120,14 +89,8 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.basedir}/catalog/sawtooth/sawtooth.bom</file>
+                                    <file>${project.basedir}/sawtooth.bom</file>
                                     <type>bom</type>
-                                    <classifier>sawtooth</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>${project.build.outputDirectory}/feature.xml</file>
-                                    <type>xml</type>
-                                    <classifier>features</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>
@@ -169,27 +132,4 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>cloudsoft-release</id>
-            <activation>
-                <property>
-                    <name>brooklyn.deployTo</name>
-                    <value>cloudsoftArtifactory</value>
-                </property>
-            </activation>
-            <distributionManagement>
-                <repository>
-                    <id>cloudsoft-deploy-artifactory-release</id>
-                    <name>Cloudsoft Artifactory libs-release-local repo</name>
-                    <url>https://artifactory.cloudsoftcorp.com/artifactory/libs-release-local/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>cloudsoft-deploy-artifactory-snapshot</id>
-                    <name>Cloudsoft Artifactory libs-snapshot-local repo</name>
-                    <url>https://artifactory.cloudsoftcorp.com/artifactory/libs-snapshot-local/</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-    </profiles>
 </project>
