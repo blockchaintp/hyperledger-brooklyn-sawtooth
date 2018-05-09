@@ -120,6 +120,11 @@ brooklyn.catalog:
             id: rbac-ui
             brooklyn.config:
               latch.launch: $brooklyn:sibling("rbac-server").attributeWhenReady("service.isUp")
+          - type: sawtooth-explorer-rest-api-proxy
+            name: "sawtooth-explorer-rest-api-proxy"
+            id: sawtooth-explorer-rest-api-proxy
+            brooklyn.config:
+              latch.launch: $brooklyn:sibling("sawtooth-rest-api").attributeWhenReady("service.isUp")
           - type: sawtooth-explorer
             name: "sawtooth-explorer"
             id: sawtooth-explorer
@@ -375,6 +380,38 @@ brooklyn.catalog:
                   - "http://%s:4200"
                   - $brooklyn:attributeWhenReady("host.address")
 
+    - id: sawtooth-explorer-rest-api-proxy
+      description: |
+        The Hyperledger Sawtooth Explorer REST API proxy container.
+      itemType: entity
+      item:
+        type: sawtooth-docker-container
+        name: "sawtooth-explorer-rest-api-proxy"
+
+        brooklyn.config:
+          container.name: "sawtooth-explorer-rest-api-proxy"
+          image.name: "nginx"
+          image.version: "stable"
+          image.repository: "library"
+
+          shell.env:
+            INSTALL_DIR: $brooklyn:attributeWhenReady("install.dir")
+
+          files.install:
+            "classpath://io.brooklyn.hyperledger.sawtooth:sawtooth/nginx.conf": nginx.conf
+
+          launch.command: |
+            docker run \
+                --name=${CONTAINER_NAME} \
+                --restart=always \
+                --network ${NETWORK} \
+                -d \
+                -p 8090:8090 \
+                -v "${INSTALL_DIR}/nginx.conf:/etc/nginx/nginx.conf:ro" \
+                ${CONTAINER_OPTIONS} \
+                ${IMAGE} \
+                nginx -g "daemon off;"
+
     - id: sawtooth-explorer
       description: |
         The Hyperledger Sawtooth Explorer container.
@@ -395,8 +432,8 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -e SAWTOOTH_REST_API=${HOST_ADDRESS} \
                 -p 4201:4201 \
+                -e SAWTOOTH_REST_API=${HOST_ADDRESS} \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE}
 
