@@ -20,14 +20,11 @@ Use the [example files](./examples) as templates to create a Sawtooth platform b
           sawtooth.network.cidr: "10.0.0.0/24"
           sawtooth.cluster.name: "example
 
-First, start a Brooklyn server, using a Docker image with Sawtooth platform entities loaded into the catalog. The following example shows the persistence data volume being created, and the `/keys` and `/blueprints` volumes being mounted from the Docker host. If the Docker host is a cloud VM then it may be nescessary to mount the `/dev/urandom` device from the host to allow SSH enough entropy.
+First, start a Brooklyn server, using a Docker image with Sawtooth platform entities loaded into the catalog. The following example shows the `/keys` and `/blueprints` volumes being mounted from the Docker host. Note that the files, particularly the SSH keys, must be readable by the `brooklyn` user in the container. See the `launch.sh` script for a more detailed example.
 
-    $ docker volume create brooklyn-persistence-data
     $ docker run -d -P \
-            -v ~/.ssh:/keys \
+            -v ~/keys:/keys \
             -v $(pwd)/examples:/blueprints \
-            -v brooklyn-persistence-data:/var/brooklyn \
-            -v /dev/urandom:/dev/random \
             --name brooklyn \
             blockchaintp/brooklyn-sawtooth:0.5.0-SNAPSHOT
     ae82e15583ac4f32724a2daf0f122d3b6c7075ec3fcc35e35f46f6e300c522a9
@@ -38,28 +35,21 @@ First, start a Brooklyn server, using a Docker image with Sawtooth platform enti
 
 Once the Brooklyn UI is accessible on port 8081, you can then configure a cloud location and deploy your Sawtooth platform.
 
-    $ docker exec brooklyn \
-            br add-catalog /blueprints/location.bom
+    $ docker exec brooklyn br add-catalog /blueprints/location.bom
     ...
-    $ docker exec brooklyn \
-            br deploy /blueprints/platform.yaml
+    $ docker exec brooklyn br deploy /blueprints/platform.yaml
     Id:       | p7n0xemln2
     Name:     | my-sawtooth-platform
     status:   | In progress
-    $ docker exec brooklyn \
-            br app my-sawtooth-platform
-    Id:              | p7n0xemln2
-    Name:            | my-sawtooth-platform
-    Status:          | STARTING
-    ServiceUp:       | false
-    Type:            | org.apache.brooklyn.entity.stock.BasicApplication
-    CatalogItemId:   | sawtooth-platform-application:0.5.0-SNAPSHOT
-    LocationId:      | pr9gp5zheq
-    LocationName:    | amazon-dublin
-    LocationSpec:    | amazon-dublin
-    LocationType:    | org.apache.brooklyn.location.jclouds.JcloudsLocation
 
-Once the Sawtooth network is running, check its status using the main Grafana dashboard for metrics, or access the Sawtooth Explorer to look up raw blockchain data.
+Once the Sawtooth network is running, check its status using the main Grafana dashboard for metrics, or access the Sawtooth Explorer to look up raw blockchain data. You can also check the values of various sensors by running the following command.
+
+    $ docker exec brooklyn status.sh my-sawtooth-platform
+    {
+      "host.address": "172.31.30.8",
+      "seth.account": "9a998829441e9f114cc4168c371b24220e844074",
+      "administrator.id": "0326a02883aa1394a446455ef3d905adaec01f7b33837c4618180a09a13318c417"
+    }
 
 ## Building the Platform
 

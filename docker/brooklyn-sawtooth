@@ -34,7 +34,7 @@ ARG BROOKLYN_BR_ZIP_URL
 ENV HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION="${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}"
 ENV BROOKLYN_VERSION="${BROOKLYN_VERSION}"
 ENV BROOKLYN_HOME="/opt/brooklyn"
-ENV BROOKLYN_PERSISTENCE_DIR="/var/lib/brooklyn"
+ENV BROOKLYN_PERSISTENCE_DIR="/var/brooklyn"
 ENV BROOKLYN_LOG_DIR="${BROOKLYN_HOME}/data/log"
 ENV EXTRA_JAVA_OPTS="-XX:SoftRefLRUPolicyMSPerMB=1"
 
@@ -53,19 +53,19 @@ RUN addgroup brooklyn \
  && mv brooklyn-client-cli-${BROOKLYN_VERSION}/linux.386/br /bin/br \
  && rm -f /brooklyn.tgz /br.zip \
  && rm -rf brooklyn-client-cli-${BROOKLYN_VERSION} \
- && chown -R brooklyn:brooklyn ${BROOKLYN_HOME} \
- && chown -R brooklyn:brooklyn ${BROOKLYN_PERSISTENCE_DIR}
+ && chown -R brooklyn:brooklyn ${BROOKLYN_HOME} ${BROOKLYN_PERSISTENCE_DIR} /keys \
+ && chmod 700 /keys
 
-COPY ./scripts/brooklyn.sh /brooklyn.sh
-COPY ./scripts/status.sh /status.sh
+COPY ./scripts/brooklyn.sh /bin/brooklyn.sh
+COPY ./scripts/status.sh /bin/status.sh
 COPY ./target/sawtooth-${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}.jar /catalog
 COPY ./sawtooth.bom /catalog
 
 VOLUME /blueprints
 VOLUME /keys
+VOLUME /var/brooklyn
 EXPOSE 8081 8443
-
-WORKDIR ${BROOKLYN_HOME}
 USER brooklyn
 
-ENTRYPOINT ["/brooklyn.sh"]
+WORKDIR ${BROOKLYN_HOME}
+CMD [ "brooklyn.sh" ]

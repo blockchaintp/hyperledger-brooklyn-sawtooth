@@ -27,10 +27,16 @@
 
 APP=${1:-sawtooth-platform-application}
 
+# get sensor data
 host_address=$(br app ${APP} entity sawtooth-platform-server-node sensor host.address)
-echo "${host_address}"
-# 18.196.191.3
-
 seth_account=$(br app ${APP} entity sawtooth-platform-server-node sensor sawtooth.seth.account)
-echo "${seth_account}"
-# 64314c730d7fdc91aa5c9d4355e8606e4a088616
+administrator_id=$(br app ${APP} entity sawtooth-platform-server-node sensor sawtooth.next-directory.administrator.id)
+
+# output json data
+cat <<EOF
+{
+  "host.address": "${host_address}",
+  "seth.account": "${seth_account}",
+  "administrator.id": "${administrator_id}"
+}
+EOF
