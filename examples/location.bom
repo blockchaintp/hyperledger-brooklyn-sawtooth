@@ -12,8 +12,8 @@ brooklyn.catalog:
           stopIptables: true
           installDevUrandom: true
           keyPair: xxxxxx
-          loginUser.privateKeyFile: ~/.ssh/xxxxxx.pem
-          privateKeyFile: ~/.ssh/xxxxxx.pem
+          loginUser.privateKeyFile: /keys/xxxxxx.pem
+          privateKeyFile: /keys/xxxxxx.pem
 
     - id: amazon-frankfurt
       name: "amazon-frankfurt"
