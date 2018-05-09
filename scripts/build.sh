@@ -24,18 +24,18 @@
 #
 # Usage: build.sh [test|deploy]
 # Environment:
-#     BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION - The image version
+#     HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION - The image version
 #     REPO - The Docker Hub repository name
 ##
 
-export BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION="${BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION:-0.5.0-SNAPSHOT}"
+export HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION="${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION:-0.5.0-SNAPSHOT}"
 export REPO="${REPO:-blockchaintp}"
 
 # tags and deploys an image to docker hub
 deploy() {
     image="$1"
     docker tag ${image} ${REPO}/${image}:latest
-    docker tag ${image} ${REPO}/${image}:${BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION}
+    docker tag ${image} ${REPO}/${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
     docker push ${REPO}/${image}
 }
 
@@ -44,7 +44,7 @@ mvn clean install
 
 # build the docker image for brooklyn-sawtooth
 docker build . \
-    --build-arg BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION=${BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION} \
+    --build-arg HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION=${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION} \
     -t brooklyn-sawtooth \
     -f ./docker/brooklyn-sawtooth
 

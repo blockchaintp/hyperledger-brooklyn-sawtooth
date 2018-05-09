@@ -17,7 +17,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-ARG BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION="0.5.0-SNAPSHOT"
+ARG HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION="0.5.0-SNAPSHOT"
 ARG BROOKLYN_VERSION="1.0.0-SNAPSHOT"
 ARG BROOKLYN_TGZ_URL="https://repository.apache.org/content/repositories/snapshots/org/apache/brooklyn/apache-brooklyn/1.0.0-SNAPSHOT/apache-brooklyn-1.0.0-20180416.070741-10.tar.gz"
 ARG BROOKLYN_BR_ZIP_URL="https://repository.apache.org/content/repositories/snapshots/org/apache/brooklyn/brooklyn-client-cli/1.0.0-SNAPSHOT/brooklyn-client-cli-1.0.0-20180323.135425-10-bin.zip"
@@ -26,12 +26,12 @@ FROM openjdk:8-jre-alpine
 MAINTAINER "andrew.kennedy@cloudsoft.io"
 LABEL maintainer="andrew.kennedy@cloudsoft.io"
 
-ARG BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION
+ARG HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
 ARG BROOKLYN_VERSION
 ARG BROOKLYN_TGZ_URL
 ARG BROOKLYN_BR_ZIP_URL
 
-ENV BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION="${BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION}"
+ENV HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION="${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}"
 ENV BROOKLYN_VERSION="${BROOKLYN_VERSION}"
 ENV BROOKLYN_HOME="/opt/brooklyn"
 ENV BROOKLYN_PERSISTENCE_DIR="/var/lib/brooklyn"
@@ -58,7 +58,7 @@ RUN addgroup brooklyn \
 
 COPY ./scripts/brooklyn.sh /brooklyn.sh
 COPY ./scripts/status.sh /status.sh
-COPY ./target/sawtooth-${BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION}.jar /catalog
+COPY ./target/sawtooth-${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}.jar /catalog
 COPY ./sawtooth.bom /catalog
 
 VOLUME /blueprints
