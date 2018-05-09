@@ -58,7 +58,7 @@ brooklyn.catalog:
             name: "sawtooth-platform-cluster"
 
             brooklyn.config:
-              sawtooth.version: "1.0.3"
+              sawtooth.version: "1.0.5"
               sawtooth.repository: "blockchaintp"
               sawtooth.size: 3
               sawtooth.network: "blockchaintp.local"

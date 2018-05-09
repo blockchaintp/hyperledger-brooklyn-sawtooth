@@ -72,7 +72,7 @@ brooklyn.catalog:
             name: "sawtooth-seth-cluster-application"
 
             brooklyn.config:
-              sawtooth.version: "1.0.3"
+              sawtooth.version: "1.0.5"
               sawtooth.repository: "sawtooth"
               sawtooth.size: 3
               sawtooth.network: "remote"
@@ -93,7 +93,7 @@ brooklyn.catalog:
             name: "sawtooth-platform-application"
 
             brooklyn.config:
-              sawtooth.version: "1.0.3"
+              sawtooth.version: "1.0.5"
               sawtooth.repository: "sawtooth"
               sawtooth.size: 3
               sawtooth.network: "remote"
