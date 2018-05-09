@@ -155,7 +155,7 @@ brooklyn.catalog:
                   - $brooklyn:attributeWhenReady("host.address")
           - type: org.apache.brooklyn.core.sensor.StaticSensor
             brooklyn.config:
-              name: sawtooth.sawtooth.explorer.uri
+              name: sawtooth.explorer.uri
               static.value:
                 $brooklyn:formatString:
                   - "http://%s:4201"

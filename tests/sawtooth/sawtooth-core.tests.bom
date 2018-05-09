@@ -64,13 +64,17 @@ brooklyn.catalog:
                 assert:
                   - contains: $brooklyn:component($brooklyn:config("targetId")).config("sawtooth.network")
 
-          - id: test-main-uri-naming
-            name: "Main.uri contains block-info"
+          - id: test-rest-api-returns-block-info-block
+            name: "API data contains block-info"
             type: test-case
             brooklyn.children:
-              - type: assert-sensor
-                target: $brooklyn:component($brooklyn:config("targetId"))
-                sensor: main.uri
-                assert:
-                  - contains: "blocks"
-                  # TODO should check returned CONTENTS of a GET on main.uri
+              - type: test-http
+                brooklyn.config:
+                  maxAttempts: 1
+                  url: $brooklyn:component($brooklyn:config("serverNodeId")).attributeWhenReady("sawtooth.rest-api.uri")
+                  applyAssertionTo: body
+                  method: GET
+                  assert:
+                    - contains: "settings"
+                    - contains: "block-info"
+
