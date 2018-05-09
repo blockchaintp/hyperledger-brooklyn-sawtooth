@@ -190,23 +190,6 @@ brooklyn.catalog:
             name: "sawtooth-rbac-transaction-processors"
             id: sawtooth-rbac-transaction-processors
 
-    - id: sawtooth-platform-validator-node
-      description: |
-        A Hyperledger Sawtooth platform validator node.
-      itemType: entity
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
-      item:
-        type: sawtooth-seth-validator-node
-        name: "sawtooth-platform-validator-node"
-
-        brooklyn.children:
-          - type: sawtooth-rbac-transaction-processors
-            name: "sawtooth-rbac-transaction-processors"
-            id: sawtooth-rbac-transaction-processors
-            brooklyn.config:
-              latch.launch:
-                $brooklyn:ancestor("sawtooth-rbac-transaction-processors").sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-
     - id: rbac-server
       description: |
         The Hyperledger Sawtooth RBAC server container.
