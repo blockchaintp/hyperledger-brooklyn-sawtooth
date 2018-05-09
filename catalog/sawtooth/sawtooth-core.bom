@@ -11,7 +11,7 @@ brooklyn.catalog:
       description: |
         Hyperledger Sawtooth standalone server application.
       itemType: entity
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       item:
         type: org.apache.brooklyn.entity.stock.BasicApplication
         name: "sawtooth-standalone-server-application"
@@ -57,7 +57,7 @@ brooklyn.catalog:
       description: |
         Hyperledger Sawtooth Seth standalone server application.
       itemType: entity
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       item:
         type: org.apache.brooklyn.entity.stock.BasicApplication
         name: "sawtooth-seth-standalone-server-application"
@@ -103,7 +103,7 @@ brooklyn.catalog:
       description: |
         Hyperledger Sawtooth cluster application.
       itemType: entity
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       item:
         type: org.apache.brooklyn.entity.stock.BasicApplication
         name: "sawtooth-cluster-application"
@@ -179,7 +179,7 @@ brooklyn.catalog:
       description: |
         Hyperledger Sawtooth Seth cluster application.
       itemType: entity
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       item:
         type: org.apache.brooklyn.entity.stock.BasicApplication
         name: "sawtooth-seth-cluster-application"
@@ -519,7 +519,7 @@ brooklyn.catalog:
       description: |
         Hyperledger Sawtooth workload generator application.
       itemType: entity
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       item:
         type: org.apache.brooklyn.entity.stock.BasicApplication
         name: "sawtooth-workload-application"
@@ -552,6 +552,7 @@ brooklyn.catalog:
       description: |
         A Hyperledger Sawtooth workload generator node.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-engine
         name: "sawtooth-workload-node"
@@ -570,7 +571,7 @@ brooklyn.catalog:
       description: |
         Remote Hyperledger Sawtooth cluster application.
       itemType: entity
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       item:
         type: org.apache.brooklyn.entity.stock.BasicApplication
         name: "sawtooth-remote-cluster-application"
@@ -743,6 +744,7 @@ brooklyn.catalog:
       description: |
         The main Hyperledger Sawtooth REST API container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-rest-api"
@@ -781,6 +783,7 @@ brooklyn.catalog:
         keys, enables injecting 'block-info' transactions and initialises the
         blockchain.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-validator-main"
@@ -855,6 +858,7 @@ brooklyn.catalog:
       description: |
         A Hyperledger Sawtooth validator container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-validator"
@@ -910,6 +914,7 @@ brooklyn.catalog:
         A Hyperledger Sawtooth transaction processor container for the
         'settings' family.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-settings-tp"
@@ -942,6 +947,7 @@ brooklyn.catalog:
         A Hyperledger Sawtooth transaction processor container for the
         'identity' family.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-identity-tp"
@@ -974,6 +980,7 @@ brooklyn.catalog:
         A Hyperledger Sawtooth transaction processor container for the
         'intkey' family.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-intkey-tp"
@@ -1006,6 +1013,7 @@ brooklyn.catalog:
         A Hyperledger Sawtooth transaction processor container for the
         'xo' family.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-xo-tp"
@@ -1038,6 +1046,7 @@ brooklyn.catalog:
         A Hyperledger Sawtooth transaction processor container for the
         'smallbank' family.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-smallbank-tp"
@@ -1070,6 +1079,7 @@ brooklyn.catalog:
         A Hyperledger Sawtooth transaction processor container for the
         'block-info' family.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-block-info-tp"
@@ -1104,6 +1114,7 @@ brooklyn.catalog:
 
         Enables the execution of EVM Solidity smart contracts.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-seth-tp"
@@ -1142,6 +1153,7 @@ brooklyn.catalog:
         A Hyperledger Sawtooth account manager container for the
         'seth' family.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-seth-accounts"
@@ -1200,6 +1212,7 @@ brooklyn.catalog:
         Enables Ethereum compatible applications to integrate with Sawtooth and
         create 'seth' transactions.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-seth-rpc"
@@ -1248,6 +1261,7 @@ brooklyn.catalog:
       description: |
         The Hyperledger Sawtooth PoET registry container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-poet-validator-registry-tp"
@@ -1279,6 +1293,7 @@ brooklyn.catalog:
       description: |
         The InfluxDB container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/influxdb.png"
       item:
         type: sawtooth-docker-container
         name: "influxdb"
@@ -1302,6 +1317,7 @@ brooklyn.catalog:
       description: |
         The Grafana container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/grafana.png"
       item:
         type: sawtooth-docker-container
         name: "grafana"
@@ -1325,6 +1341,7 @@ brooklyn.catalog:
       description: |
         The Telegraf container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/telegraf.png"
       item:
         type: sawtooth-docker-container
         name: "telegraf"
@@ -1361,6 +1378,7 @@ brooklyn.catalog:
       description: |
         The Hyperledger Sawtooth 'smallbank' workload generator container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-smallbank-workload"

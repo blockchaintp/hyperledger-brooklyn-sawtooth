@@ -19,7 +19,7 @@ brooklyn.catalog:
       name: "sawtooth-cluster"
       description: |
         Hyperledger Sawtooth Blockchain Cluster.
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       itemType: template
       publish:
         license_code: APACHE-2.0
@@ -41,7 +41,7 @@ brooklyn.catalog:
       name: "sawtooth-remote-cluster"
       description: |
         Hyperledger Sawtooth Blockchain Remote Cluster.
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       itemType: template
       publish:
         license_code: APACHE-2.0
@@ -64,7 +64,7 @@ brooklyn.catalog:
       name: "sawtooth-seth-cluster"
       description: |
         Hyperledger Sawtooth Seth cluster.
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       itemType: template
       item:
         services:
@@ -85,7 +85,7 @@ brooklyn.catalog:
       name: "sawtooth-platform"
       description: |
         Hyperledger Sawtooth platform cluster.
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       itemType: template
       item:
         services:
@@ -106,7 +106,7 @@ brooklyn.catalog:
       name: "sawtooth-workload"
       description: |
         Hyperledger Sawtooth Workload Generator.
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       itemType: template
       publish:
         license_code: APACHE-2.0

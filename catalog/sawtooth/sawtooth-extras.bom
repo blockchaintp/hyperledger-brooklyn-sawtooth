@@ -11,7 +11,7 @@ brooklyn.catalog:
       description: |
         The Hyperledger Sawtooth network and supporting components.
       itemType: entity
-      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/sawtooth.png"
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       item:
         type: org.apache.brooklyn.entity.stock.BasicApplication
         name: "sawtooth-platform-application"
@@ -211,6 +211,7 @@ brooklyn.catalog:
       description: |
         The Hyperledger Sawtooth RBAC server container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/next-directory.png"
       item:
         type: sawtooth-docker-container
         name: "rbac-server"
@@ -262,6 +263,7 @@ brooklyn.catalog:
       description: |
         The Hyperledger Sawtooth RethinkDB RBAC database container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/rethinkdb.png"
       item:
         type: sawtooth-docker-container
         name: "rethinkdb"
@@ -287,6 +289,7 @@ brooklyn.catalog:
       description: |
         The Hyperledger Sawtooth RBAC transaction processor container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/next-directory.png"
       item:
         type: sawtooth-docker-container
         name: "rbac-tp"
@@ -318,6 +321,7 @@ brooklyn.catalog:
       description: |
         The Hyperledger Sawtooth RBAC ledger sync container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/next-directory.png"
       item:
         type: sawtooth-docker-container
         name: "ledger-sync"
@@ -350,6 +354,7 @@ brooklyn.catalog:
       description: |
         The Hyperledger Sawtooth RBAC UI container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/next-directory.png"
       item:
         type: sawtooth-docker-container
         name: "rbac-ui"
@@ -384,6 +389,7 @@ brooklyn.catalog:
       description: |
         The Hyperledger Sawtooth Explorer REST API proxy container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/nginx.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-explorer-rest-api-proxy"
@@ -416,6 +422,7 @@ brooklyn.catalog:
       description: |
         The Hyperledger Sawtooth Explorer container.
       itemType: entity
+      iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/hyperledger.png"
       item:
         type: sawtooth-docker-container
         name: "sawtooth-explorer"
