@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright 2018 by Cloudsoft Corporation Limited
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -16,34 +17,30 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+#set -x # DEBUG
 
-worker_processes  1;
+##
+# Create Seth accounts using the Sawtooth Seth CLI command.
+#
+# Usage: accounts.sh container-name [quantity]
+# Environment:
+#     PREFIX - The string prefix to identify the accounts
+##
 
-events {
-    worker_connections  1024;
-}
+CONTAINER_NAME=$1
+TOTAL=${2:-16}
+PREFIX=${PREFIX:-test}
 
-http {
-    include mime.types;
-    default_type application/octet-stream;
-    sendfile on;
-    keepalive_timeout 65;
+n=0
+while [ $n -lt ${TOTAL} ] ; do
+    alias=$(printf "%s-%03d" ${PREFIX} $n)
 
-    map $http_upgrade $connection_upgrade {
-        default upgrade;
-        '' close;
-    }
+    docker exec --workdir /data ${CONTAINER_NAME} \
+        bash -c "openssl ecparam -genkey -name secp256k1 | openssl ec -out ${alias}.pem" > /dev/null
+    docker exec --workdir /data ${CONTAINER_NAME} \
+        seth account import ${alias}.pem ${alias} > /dev/null
+    docker exec --workdir /data ${CONTAINER_NAME} \
+        seth account create --nonce=0 --wait ${alias}
 
-    server {
-        listen 8090;
-        add_header Pragma no-cache always;
-        add_header Access-Control-Allow-Origin *;
-
-        location / {
-          proxy_pass http://rest-api:8080;
-          proxy_read_timeout 5000;
-          proxy_set_header Upgrade $http_upgrade;
-          proxy_set_header Connection $connection_upgrade;
-        }
-    }
-}
+    n=$((n + 1))
+done

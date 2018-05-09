@@ -24,19 +24,19 @@
 #
 # Usage: build.sh [test|deploy]
 # Environment:
-#     DOCKER_REPOSITORY - The Docker Hub repository name
 #     BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION - The image version
+#     REPO - The Docker Hub repository name
 ##
 
 export BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION="${BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION:-0.5.0-SNAPSHOT}"
-export DOCKER_REPOSITORY="${DOCKER_REPOSITORY:-blockchaintp}"
+export REPO="${REPO:-blockchaintp}"
 
 # tags and deploys an image to docker hub
 deploy() {
     image="$1"
-    docker tag ${image} ${DOCKER_REPOSITORY}/${image}:latest
-    docker tag ${image} ${DOCKER_REPOSITORY}/${image}:${BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION}
-    docker push ${DOCKER_REPOSITORY}/${image}
+    docker tag ${image} ${REPO}/${image}:latest
+    docker tag ${image} ${REPO}/${image}:${BROOKLYN_HYPERLEDGER_SAWTOOTH_VERSION}
+    docker push ${REPO}/${image}
 }
 
 # build the jar file for the catalog bundle

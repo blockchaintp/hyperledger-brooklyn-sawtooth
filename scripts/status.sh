@@ -1,4 +1,5 @@
-# Copyright 2018 by Cloudsoft Corporation Limited
+#!/bin/bash
+# Copyright 2018 by Blockchain Technology Partners
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -16,34 +17,20 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+#set -x # DEBUG
 
-worker_processes  1;
+##
+# Gets the current status of a running Brooklyn Sawtooth application.
+#
+# Usage: status.sh [application-name]
+##
 
-events {
-    worker_connections  1024;
-}
+APP=${1:-sawtooth-platform-application}
 
-http {
-    include mime.types;
-    default_type application/octet-stream;
-    sendfile on;
-    keepalive_timeout 65;
+host_address=$(br app ${APP} entity sawtooth-platform-server-node sensor host.address)
+echo "${host_address}"
+# 18.196.191.3
 
-    map $http_upgrade $connection_upgrade {
-        default upgrade;
-        '' close;
-    }
-
-    server {
-        listen 8090;
-        add_header Pragma no-cache always;
-        add_header Access-Control-Allow-Origin *;
-
-        location / {
-          proxy_pass http://rest-api:8080;
-          proxy_read_timeout 5000;
-          proxy_set_header Upgrade $http_upgrade;
-          proxy_set_header Connection $connection_upgrade;
-        }
-    }
-}
+seth_account=$(br app ${APP} entity sawtooth-platform-server-node sensor sawtooth.seth.account)
+echo "${seth_account}"
+# 64314c730d7fdc91aa5c9d4355e8606e4a088616

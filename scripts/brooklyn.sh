@@ -17,7 +17,15 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-#set -x
+#set -x # DEBUG
+
+##
+# Start an Apache Brooklyn service with Sawtooth platform catalog entries.
+#
+# Usage: brooklyn.sh
+# Environment:
+#     CATALOG_DIR - The catalog directory with jar and bom files
+##
 
 CATALOG_DIR="${CATALOG_DIR:-/catalog}"
 
