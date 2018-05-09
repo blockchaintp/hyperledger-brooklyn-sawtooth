@@ -31,11 +31,11 @@
 
 BUILD_DIR="${BUILD_DIR:-./build}"
 
-SAWTOOTH_CORE_REPO="${SAWTOOTH_CORE_REPO:-https://github.com/hyperledger/sawtooth-core.git}"
+SAWTOOTH_CORE_REPO="${SAWTOOTH_CORE_REPO:-https://github.com/blockchaintp/sawtooth-core.git}"
 SAWTOOTH_CORE_BRANCH="${SAWTOOTH_CORE_BRANCH:-1-0}"
 SAWTOOTH_SETH_REPO="${SAWTOOTH_SETH_REPO:-https://github.com/blockchaintp/sawtooth-seth.git}"
 SAWTOOTH_SETH_BRANCH="${SAWTOOTH_SETH_BRANCH:-seth-rpc-eth-call}"
-SAWTOOTH_NEXT_DIRECTORY_REPO="${SAWTOOTH_NEXT_DIRECTORY_REPO:-https://github.com/hyperledger/sawtooth-next-directory.git}"
+SAWTOOTH_NEXT_DIRECTORY_REPO="${SAWTOOTH_NEXT_DIRECTORY_REPO:-https://github.com/blockchaintp/sawtooth-next-directory.git}"
 SAWTOOTH_NEXT_DIRECTORY_BRANCH="${SAWTOOTH_NEXT_DIRECTORY_BRANCH:-master}"
 SAWTOOTH_EXPLORER_REPO="${SAWTOOTH_EXPLORER_REPO:-https://github.com/blockchaintp/sawtooth-explorer.git}"
 SAWTOOTH_EXPLORER_BRANCH="${SAWTOOTH_EXPLORER_BRANCH:-standalone-dockerfile}"
@@ -61,8 +61,14 @@ compose() {
     cd ..
 }
 
+# clean up build directory
+if [ -d "${BUILD_DIR}" ] ; then
+    sudo rm -rf "${BUILD_DIR}"
+fi
+mkdir -p "${BUILD_DIR}"
+cd "${BUILD_DIR}"
+
 # clone the required projects
-cd ${BUILD_DIR}
 checkout sawtooth-core
 checkout sawtooth-seth
 checkout sawtooth-next-directory
