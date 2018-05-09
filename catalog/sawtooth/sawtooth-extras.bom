@@ -153,6 +153,13 @@ brooklyn.catalog:
                 $brooklyn:formatString:
                   - "http://%s:8000"
                   - $brooklyn:attributeWhenReady("host.address")
+          - type: org.apache.brooklyn.core.sensor.ssh.SshCommandSensor
+            brooklyn.config:
+              name: sawtooth.next-directory.administrator.id
+              description: |
+                The user account ID for the RBAC administrator account
+              command: |
+                cat ${HOME}/rbac_administrator_id.out
           - type: org.apache.brooklyn.core.sensor.StaticSensor
             brooklyn.config:
               name: sawtooth.explorer.uri
@@ -240,7 +247,7 @@ brooklyn.catalog:
                 -v "${RUN_DIR}/bin:/bin" \
                 python:3.6.5-slim \
                 ./bin/setup_rbac \
-                    --host rbac-server.${NETWORK}
+                    --host rbac-server.${NETWORK} > ${HOME}/rbac_administrator_id.out
 
     - id: rethinkdb
       description: |

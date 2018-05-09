@@ -60,7 +60,6 @@ def parse_args(args):
 
 
 def setup_rbac(host, port, name, password, email, group_name, retries):
-    print("Sleeping for 2 minutes to wait for server...")
     time.sleep(120)
 
     try:
@@ -70,68 +69,58 @@ def setup_rbac(host, port, name, password, email, group_name, retries):
         headers = {'Content-Type': "application/json"}
 
         for i in range(retries):
-            print("Creating user '%s'..." % (name,))
-
             conn.request("POST", "/api/users", json.dumps(payload), headers)
             res = conn.getresponse()
-
             data = res.read()
-            print(data.decode("utf-8"))
 
             if res.status != 200:
-                print("User creation attempt %s of %s failed!" % (str(i + 1), str(retries)))
-
                 if i == (retries - 1):
-                    print("User creation failed!")
+                    print("User creation failed!", file=sys.stderr)
                     exit(1)
 
-                print("Sleeping %s seconds before retrying..." % (str((i + 1) * 5),))
                 time.sleep((i + 1) * 5)
             else:
-                print("Successfully created user '%s'!" % (name,))
                 break
 
         data_object = json.loads(data.decode("utf-8"))
         response_data = data_object["data"]
 
-        payload = {'name': group_name, 'administrators': [response_data["user"]["id"]], 'owners': [response_data["user"]["id"]]}
+        print(response_data["user"]["id"])
+
+        payload = {
+          'name': group_name,
+          'administrators': [response_data["user"]["id"]],
+          'owners': [response_data["user"]["id"]]
+        }
         headers = {
             'Content-Type': "application/json",
             'Authorization': response_data["authorization"]
         }
 
         for i in range(retries):
-            print("Creating group '%s'..." % (group_name,))
-
             conn.request("POST", "/api/roles", json.dumps(payload), headers)
             res = conn.getresponse()
-
             data = res.read()
-            print(data.decode("utf-8"))
 
             if res.status != 200:
-                print("Group creation attempt %s of %s failed!" % (str(i + 1), str(retries)))
-
                 if i == (retries - 1):
-                    print("Group creation failed!")
+                    print("Group creation failed!", file=sys.stderr)
                     exit(1)
 
-                print("Sleeping %s seconds before retrying..." % (str((i + 1) * 5),))
                 time.sleep((i + 1) * 5)
             else:
-                print("Successfully created group '%s'!" % (group_name,))
                 break
     except ConnectionRefusedError:
         traceback.print_exc()
-        print("Failed to connect to the RBAC server!")
+        print("Failed to connect to the RBAC server!", file=sys.stderr)
         exit(1)
     except http.client.HTTPException:
         traceback.print_exc()
-        print("An error occurred during a request to the RBAC server!")
+        print("An error occurred during a request to the RBAC server!", file=sys.stderr)
         exit(1)
     except Exception:
         traceback.print_exc()
-        print("An unexpected error occurred!")
+        print("An unexpected error occurred!", file=sys.stderr)
         exit(1)
     finally:
         conn.close()
