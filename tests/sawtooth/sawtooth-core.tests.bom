@@ -64,8 +64,8 @@ brooklyn.catalog:
                 assert:
                   - contains: $brooklyn:component($brooklyn:config("targetId")).config("sawtooth.network")
 
-          - id: test-rest-api-returns-block-info-block
-            name: "API data contains block-info"
+          - id: test-rest-api-returns-settings-block
+            name: "API data contains sawtooth_settings"
             type: test-case
             brooklyn.children:
               - type: test-http
@@ -75,6 +75,5 @@ brooklyn.catalog:
                   applyAssertionTo: body
                   method: GET
                   assert:
-                    - contains: "settings"
-                    - contains: "block-info"
+                    - contains: "sawtooth_settings"
 

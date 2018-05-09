@@ -104,15 +104,15 @@ brooklyn.catalog:
             name: "rbac-server"
             id: rbac-server
             brooklyn.config:
-              latch.launch: $brooklyn:sibling("ledger-sync").attributeWhenReady("service.isUp")
+              latch.launch: $brooklyn:sibling("rbac-ledger-sync").attributeWhenReady("service.isUp")
           - type: rethinkdb
             name: "rethinkdb"
             id: rethinkdb
             brooklyn.config:
               latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
-          - type: ledger-sync
-            name: "ledger-sync"
-            id: ledger-sync
+          - type: rbac-ledger-sync
+            name: "rbac-ledger-sync"
+            id: rbac-ledger-sync
             brooklyn.config:
               latch.launch: $brooklyn:sibling("rethinkdb").attributeWhenReady("service.isUp")
           - type: rbac-ui
@@ -307,17 +307,17 @@ brooklyn.catalog:
                 ${IMAGE} \
                 bin/rbac-tp -vv tcp://${NODE}.${NETWORK}:4004
 
-    - id: ledger-sync
+    - id: rbac-ledger-sync
       description: |
         The Hyperledger Sawtooth RBAC ledger sync container.
       itemType: entity
       iconUrl: "classpath://io.brooklyn.hyperledger.sawtooth:icon/next-directory.png"
       item:
         type: sawtooth-docker-container
-        name: "ledger-sync"
+        name: "rbac-ledger-sync"
 
         brooklyn.config:
-          container.name: "ledger-sync"
+          container.name: "rbac-ledger-sync"
           image.name: "rbac-ledger-sync-production"
           image.version: $brooklyn:config("sawtooth.version")
           image.repository: $brooklyn:config("sawtooth.repository")

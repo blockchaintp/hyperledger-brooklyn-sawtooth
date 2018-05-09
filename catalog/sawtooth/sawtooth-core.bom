@@ -397,6 +397,7 @@ brooklyn.catalog:
                 name: "sawtooth-seth-accounts"
                 id: sawtooth-seth-accounts
                 brooklyn.config:
+                  latch.launch: $brooklyn:sibling("sawtooth-seth-tp").attributeWhenReady("service.isUp")
                   sawtooth.seth-tp: $brooklyn:sibling("sawtooth-seth-tp").config("container.name")
                   post.launch.command: |
                     if [ ! -f "${HOME}/data/brooklyn.pem" ] ; then
