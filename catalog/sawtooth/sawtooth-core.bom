@@ -424,6 +424,32 @@ brooklyn.catalog:
                 $brooklyn:formatString:
                   - "http://%s:3030"
                   - $brooklyn:attributeWhenReady("host.address")
+          - type: org.apache.brooklyn.core.effector.ssh.SshCommandEffector
+            brooklyn.config:
+              name: "deploy-smart-contract"
+              description: "Deploys a smart contract using Truffle"
+              parameters:
+                source:
+                  description: "The source GitHub repository URL including username and password"
+                account:
+                  description: "Seth account id to deploy contract to"
+                network:
+                  description: "Truffle network name"
+                  default: "sawtooth"
+                args:
+                  description: "Contract arguments"
+              shell.env:
+                HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION: "0.5.0-SNAPSHOT"
+                REPOSITORY: $brooklyn:config("sawtooth.repository")
+                SAWTOOTH_SETH_RPC: $brooklyn:descendant("sawtooth-seth-rpc").config("container.name")
+              command: |
+                IMAGE=${REPOSITORY}/sawtooth-contracts:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
+                docker pull ${IMAGE}
+                docker run \
+                    --rm \
+                    -e SETH_RPC_HOST=${SAWTOOTH_SETH_RPC} \
+                    ${IMAGE} \
+                    ${source} ${account} ${network} ${args}
 
     - id: sawtooth-validator-node
       description: |

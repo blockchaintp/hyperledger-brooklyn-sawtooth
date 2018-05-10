@@ -30,6 +30,7 @@
 
 export HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION="${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION:-0.5.0-SNAPSHOT}"
 export REPO="${REPO:-blockchaintp}"
+export SAWTOOTH_VERSION="${SAWTOOTH_VERSION:-1.0.5}"
 
 # tags and deploys an image to docker hub
 deploy() {
@@ -51,7 +52,14 @@ docker build . \
     -t brooklyn-sawtooth \
     -f ./docker/brooklyn-sawtooth
 
-# TODO build sawtooth seth contract deploy image
+# build sawtooth seth contract deploy image
+docker rmi sawtooth-contracts sawtooth-contracts:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
+docker rmi ${REPO}/sawtooth-contracts ${REPO}/sawtooth-contracts:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
+docker build . \
+    --build-arg REPO=${REPO} \
+    --build-arg SAWTOOTH_VERSION=${SAWTOOTH_VERSION} \
+    -t sawtooth-contracts \
+    -f ./docker/sawtooth-contracts
 
 # test or deploy the current build
 case "$1" in
@@ -65,5 +73,6 @@ case "$1" in
         ;;
     deploy)
         deploy brooklyn-sawtooth
+        deploy sawtooth-contracts
         ;;
 esac
