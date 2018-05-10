@@ -47,6 +47,15 @@ brooklyn.catalog:
             description: "Cluster Name"
             type: string
             default: "sawtooth"
+          - name: rbac.secret.key
+            description: "RBAC Secret Key"
+            type: string
+          - name: rbac.aes.key
+            description: "RBAC AES Key"
+            type: string
+          - name: rbac.batcher-private.key
+            description: "RBAC Batcher Private Key"
+            type: string
 
         brooklyn.children:
           - type: etcd-node
@@ -141,13 +150,6 @@ brooklyn.catalog:
                   - $brooklyn:attributeWhenReady("host.address")
           - type: org.apache.brooklyn.core.sensor.StaticSensor
             brooklyn.config:
-              name: sawtooth.next-directory-ui.uri
-              static.value:
-                $brooklyn:formatString:
-                  - "http://%s:4200"
-                  - $brooklyn:attributeWhenReady("host.address")
-          - type: org.apache.brooklyn.core.sensor.StaticSensor
-            brooklyn.config:
               name: sawtooth.next-directory-api.uri
               static.value:
                 $brooklyn:formatString:
@@ -160,13 +162,41 @@ brooklyn.catalog:
                 The user account ID for the RBAC administrator account
               command: |
                 cat ${HOME}/rbac_administrator_id.out
-          - type: org.apache.brooklyn.core.sensor.StaticSensor
+          - type: org.apache.brooklyn.core.sensor.ssh.SshCommandSensor
             brooklyn.config:
-              name: sawtooth.explorer.uri
-              static.value:
-                $brooklyn:formatString:
-                  - "http://%s:4201"
-                  - $brooklyn:attributeWhenReady("host.address")
+              name: sawtooth.next-directory.secret.key
+              description: |
+                The RBAC secret key data
+              command: |
+                cat ${HOME}/secret-key.txt
+          - type: org.apache.brooklyn.core.sensor.ssh.SshCommandSensor
+            brooklyn.config:
+              name: sawtooth.next-directory.aes.key
+              description: |
+                The RBAC AES key data
+              command: |
+                cat ${HOME}/aes-key.txt
+          - type: org.apache.brooklyn.core.sensor.ssh.SshCommandSensor
+            brooklyn.config:
+              name: sawtooth.next-directory.batcher-private.key
+              description: |
+                The RBAC batcher private key data
+              command: |
+                cat ${HOME}/batcher-private-key.txt
+
+        brooklyn.enrichers:
+          - type: org.apache.brooklyn.enricher.stock.Propagator
+            brooklyn.config:
+              uniqueTag: rbac-ui-uri-propagator
+              producer: $brooklyn:child("rbac-ui")
+              propagating:
+                - $brooklyn:sensor("sawtooth.next-directory-ui.uri")
+          - type: org.apache.brooklyn.enricher.stock.Propagator
+            brooklyn.config:
+              uniqueTag: sawtooth-explorer-uri-propagator
+              producer: $brooklyn:child("sawtooth-explorer")
+              propagating:
+                - $brooklyn:sensor("sawtooth.explorer.uri")
 
     - id: sawtooth-rbac-transaction-processors
       description: |
@@ -216,6 +246,9 @@ brooklyn.catalog:
             NODE: $brooklyn:config("sawtooth.node")
             INSTALL_DIR: $brooklyn:attributeWhenReady("install.dir")
             RUN_DIR: $brooklyn:attributeWhenReady("run.dir")
+            SECRET_KEY: $brooklyn:config("rbac.secret.key")
+            AES_KEY: $brooklyn:config("rbac.aes.key")
+            BATCHER_PRIVATE_KEY: $brooklyn:config("rbac.batcher-private.key")
 
           files.install:
             "classpath://io.brooklyn.hyperledger.sawtooth:sawtooth/setup_rbac": setup_rbac
@@ -224,6 +257,24 @@ brooklyn.catalog:
             mkdir ${RUN_DIR}/bin
             mv ${INSTALL_DIR}/setup_rbac ${RUN_DIR}/bin
             chmod 755 ${RUN_DIR}/bin/setup_rbac
+
+            if [ -z "${SECRET_KEY}" ] ; then
+                head /dev/urandom | tr -dc "A-Za-z0-9" | head -c 20 ; echo
+            else
+                echo "${SECRET_KEY}"
+            fi > ${HOME}/secret-key.txt
+
+            if [ -z "${AES_KEY}" ] ; then
+                head /dev/urandom | tr -dc "0-9a-f" | head -c 32 ; echo
+            else
+                echo "${AES_KEY}"
+            fi > ${HOME}/aes-key.txt
+
+            if [ -z "${BATCHER_PRIVATE_KEY}" ] ; then
+                head /dev/urandom | tr -dc "0-9a-f" | head -c 64 ; echo
+            else
+                echo "${BATCHER_PRIVATE_KEY}"
+            fi > ${HOME}/batcher-private-key.txt
 
           launch.command: |
             docker run \
@@ -234,11 +285,13 @@ brooklyn.catalog:
                 -p 8000:8000 \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                bash -c "\
-                    ./bin/rbac-server \
-                      --host 0.0.0.0 \
-                      --db-host rethinkdb.${NETWORK} \
-                      --validator-host ${NODE}.${NETWORK}"
+                ./bin/rbac-server \
+                    --host 0.0.0.0 \
+                     --db-host rethinkdb.${NETWORK} \
+                     --validator-host ${NODE}.${NETWORK} \
+                     --secret_key $(<${HOME}/secret-key.txt) \
+                     --aes-key $(<${HOME}/aes-key.txt) \
+                     --batcher-private-key $(<${HOME}/batcher-private-key.txt)
 
           post.launch.command: |
             docker run \
@@ -369,11 +422,18 @@ brooklyn.catalog:
         brooklyn.initializers:
           - type: org.apache.brooklyn.core.sensor.StaticSensor
             brooklyn.config:
-              name: rbac.ui.uri
+              name: sawtooth.next-directory-ui.uri
               static.value:
                 $brooklyn:formatString:
                   - "http://%s:4200"
                   - $brooklyn:attributeWhenReady("host.address")
+
+        brooklyn.enrichers:
+          - type: org.apache.brooklyn.enricher.stock.Propagator
+            brooklyn.config:
+              uniqueTag: rbac-ui-main-uri-propagator
+              sensorMapping:
+                $brooklyn:sensor("sawtooth.next-directory-ui.uri"): $brooklyn:sensor("main.uri")
 
     - id: sawtooth-explorer-rest-api-proxy
       description: |
@@ -442,3 +502,10 @@ brooklyn.catalog:
                 $brooklyn:formatString:
                   - "http://%s:4201"
                   - $brooklyn:attributeWhenReady("host.address")
+
+        brooklyn.enrichers:
+          - type: org.apache.brooklyn.enricher.stock.Propagator
+            brooklyn.config:
+              uniqueTag: sawtooth-explorer-main-uri-propagator
+              sensorMapping:
+                $brooklyn:sensor("sawtooth.explorer.uri"): $brooklyn:sensor("main.uri")
