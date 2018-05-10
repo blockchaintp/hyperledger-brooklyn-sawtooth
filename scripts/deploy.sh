@@ -32,10 +32,9 @@
 
 VERSION="${VERSION:-1.0.5}"
 REPO="${REPO:-blockchaintp}"
-FILTER="${FILTER}"
-
-action=$(basename "$0" .sh)
-echo -n "${action}: "
+FILTER="$1"
+ACTION=$(basename "$0" .sh)
+echo -n "${ACTION}: "
 
 ( grep -v "^#" <<IMG
 sawtooth-build-debs
@@ -81,15 +80,15 @@ sawtooth-explorer
 IMG
 ) | grep "${FILTER}" |
     while read image ; do
-        case "${action}" in
+        case "${ACTION}" in
             clean)
-                for tag in ${image} ${image}:${VERSION} ${REPO}/${image}:latest ${REPO}/${image}:${VERSION} ; do
+                for tag in ${image} ${image}:${VERSION} ${REPO}/${image} ${REPO}/${image}:${VERSION} ; do
                     docker rmi ${tag} > /dev/null 2>&1 && echo -n "x" || echo -n "."
                 done
                 ;;
             deploy)
                 for tag in ${image}:${VERSION} ${REPO}/${image}:latest ${REPO}/${image}:${VERSION} ; do
-                    docker tag ${image} ${tag}
+                    docker tag ${image} ${tag} > /dev/null 2>&1
                 done
                 docker push ${REPO}/${image}:${VERSION} > /dev/null 2>&1 && echo -n "+" || echo -n "."
                 ;;

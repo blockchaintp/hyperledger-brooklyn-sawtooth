@@ -20,9 +20,9 @@
 #set -x # DEBUG
 
 ##
-# Build Docker images for running Hyperledger Sawtooth with Brooklyn.
+# Clean, build and deploy Docker images for running Hyperledger Sawtooth with Brooklyn.
 #
-# Usage: build.sh [test|deploy]
+# Usage: build.sh [clean] [test|deploy]
 # Environment:
 #     HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION - The image version
 #     REPO - The Docker Hub repository name
@@ -34,10 +34,27 @@ export REPO="${REPO:-blockchaintp}"
 # tags and deploys an image to docker hub
 deploy() {
     image="$1"
+    docker tag ${image} ${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
     docker tag ${image} ${REPO}/${image}:latest
     docker tag ${image} ${REPO}/${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
     docker push ${REPO}/${image}
 }
+
+# delete local copies of an image
+clean() {
+    image="$1"
+    docker rmi -f ${image}
+    docker rmi -f ${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
+    docker rmi -f ${REPO}/${image}
+    docker rmi -f ${REPO}/${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
+}
+
+# clean images
+if [ "$1" == "clean" ] ; then
+    clean brooklyn-sawtooth 2> /dev/null
+    docker image prune --force
+    shift
+fi
 
 # build the jar file for the catalog bundle
 mvn clean install
