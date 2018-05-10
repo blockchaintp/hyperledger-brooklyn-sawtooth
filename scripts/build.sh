@@ -34,6 +34,7 @@ export REPO="${REPO:-blockchaintp}"
 # tags and deploys an image to docker hub
 deploy() {
     image="$1"
+    docker tag ${image} ${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
     docker tag ${image} ${REPO}/${image}:latest
     docker tag ${image} ${REPO}/${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
     docker push ${REPO}/${image}
@@ -43,6 +44,8 @@ deploy() {
 mvn clean install
 
 # build the docker image for brooklyn-sawtooth
+docker rmi brooklyn-sawtooth brooklyn-sawtooth:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
+docker rmi ${REPO}/brooklyn-sawtooth ${REPO}/brooklyn-sawtooth:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
 docker build . \
     --build-arg HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION=${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION} \
     -t brooklyn-sawtooth \

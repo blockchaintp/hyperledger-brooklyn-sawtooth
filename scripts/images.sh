@@ -84,7 +84,11 @@ cd ..
 compose sawtooth-seth
 
 # build sawtooth-next-directory images
+touch sawtooth-next-directory/server/config.py
 compose sawtooth-next-directory
 
 # build sawtooth-explorer images
 compose sawtooth-explorer
+
+# tidy up
+docker images prune --force
