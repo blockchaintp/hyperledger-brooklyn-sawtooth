@@ -37,7 +37,9 @@ if ! docker volume inspect brooklyn-persistence-data > /dev/null 2>&1 ; then
 fi
 
 # start the server
-docker run -d -P \
+docker run -d \
+    -p 8081:8081 \
+    -p 8443:8443 \
     -v ~/keys:/keys \
     -v $(pwd)/examples:/blueprints \
     -v brooklyn-persistence-data:/var/brooklyn \
