@@ -31,14 +31,15 @@ Run the following command to change the permissions so Brooklyn will be able to 
 
 Navigate to the root directory of this repository and run the following command to start a Brooklyn server using a Docker image with the Sawtooth platform entities loaded into the catalog:
 
-    $ docker run -d -P \
+    $ docker run -d \
             -p 8081:8081 \
+            -p 8443:8443 \
             -v ~/keys:/keys \
             -v $(pwd)/examples:/blueprints \
             --name brooklyn \
             blockchaintp/brooklyn-sawtooth:0.5.0-SNAPSHOT
 
-The output should be the ID of the newly created container:
+The output should be the ID of the newly created container (different every time):
 
 	ae82e15583ac4f32724a2daf0f122d3b6c7075ec3fcc35e35f46f6e300c522a9
 
