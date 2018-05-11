@@ -1,3 +1,19 @@
+## Deploying a Smart Contract to the Hyperledger Sawtooth platform Using Truffle
+
+We will use the [Tierion](https://github.com/Tierion/tierion-erc20-smart-contract) Network Token 
+ERC20 Ethereum Smart Contract repository, which contains Solidity code for an ERC-20 token smart 
+contract as an example.
+
+The Apache Brooklyn deployed Hyperledger Sawtooth provides this functionailty via an effector on the 
+sawtooth-platform-server-node.
+
+To call the effector you will need to provide the id of the admin account.  You can get this form the 
+sawtooth.seth.account sensor on the sawtooth-platform-server-node.  Once you have this open the effectors 
+tab and click invoke on "Deploy smart Contract".  For the repo url enter `https://github.com/Tierion/tierion-erc20-smart-contract`
+and for the seth_account_id enter the id from the sawtooth.seth.account sensor.  Click invoke and 
+the truffle deploy process will be started.  You can follow the progress of this on the activities tab of 
+the sawtooth-platform-server-node.
+
 # Installing the Hyperledger Sawtooth blueprint to an existing Apache Brooklyn instance
 
 The following steps will install the Hyperledger Sawtooth blueprints to an existing 
