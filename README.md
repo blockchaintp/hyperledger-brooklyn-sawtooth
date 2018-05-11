@@ -32,6 +32,7 @@ Run the following command to change the permissions so Brooklyn will be able to 
 Navigate to the root directory of this repository and run the following command to start a Brooklyn server using a Docker image with the Sawtooth platform entities loaded into the catalog:
 
     $ docker run -d -P \
+            -p 8081:8081 \
             -v ~/keys:/keys \
             -v $(pwd)/examples:/blueprints \
             --name brooklyn \
@@ -59,7 +60,12 @@ Once the Brooklyn server has started up, the UI will be accessible in your brows
 
 Navigate to [`http://localhost:8081/#v1/editor/catalog/`](http://localhost:8081/#v1/editor/catalog/) and paste the contents of [`location.bom`](examples/location.bom) into the editor.
 
-Replace the values of `identity` and `credential` with your access key ID and secret key that you created, and replace the value of `keyPair` with the name of the SSH key pair you created.
+You will need to make a number of modifications to this yaml so that it works with your own AWS account:
+
+- Replace the values of `identity` and `credential` with your access key ID and secret key that you created
+- Replace the value of `keyPair` with the name of the SSH key pair you created.
+- Replace the value of loginUser.privateKeyFile and privateKeyFile with /keys/<downloaded pem file>.pem
+- Replace the value of each security group id (sg-xxxxxx) with a suitable security group id for that location (you only need to do this for locations you plan to use)
 
 When you are finished making these edits, click "Add to Catalog."
 
