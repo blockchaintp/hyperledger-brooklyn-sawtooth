@@ -1,7 +1,11 @@
 Hyperledger Brooklyn Sawtooth
 =============================
 
-This repository contains [Apache Brooklyn](https://brooklyn.apache.org/) blueprints for a [Hyperledger Sawtooth](https://github.com/hyperledger/sawtooth-core) blockchain platform using [Docker](https://www.docker.com/).
+This repository contains [Apache Brooklyn](https://brooklyn.apache.org/) blueprints for a [Hyperledger Sawtooth](https://www.hyperledger.org/projects/sawtooth) blockchain platform using [Docker](https://www.docker.com/).
+
+## Motivation
+
+Our motivation is to simplify the deployment of Hyperledger Sawtooth using Apache Brooklyn to automate this in a wide range of configurations and on a wide range of environments. We intend to offer this to the Hyperledger community as an incubator project along the same lines as [Hyperledger Caliper](https://www.hyperledger.org/projects/caliper) ultimately providing similar blueprints for [Hyperledger Fabric](https://www.hyperledger.org/projects/fabric) and potentially other Hyperledger frameworks.    
 
 ## Getting Started
 
