@@ -20,9 +20,9 @@
 #set -x # DEBUG
 
 ##
-# Build Docker images for running Hyperledger Sawtooth with Brooklyn.
+# Clean and build Docker images for running Hyperledger Sawtooth with Brooklyn.
 #
-# Usage: build.sh [test|deploy]
+# Usage: build.sh [clean] [test|deploy]
 # Environment:
 #     HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION - The image version
 #     REPO - The Docker Hub repository name
@@ -41,6 +41,22 @@ deploy() {
     docker push ${REPO}/${image}
 }
 
+# removes local docker images
+clean() {
+    image="$1"
+    docker rmi ${image}
+    docker rmi ${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
+    docker rmi ${REPO}/${image}
+    docker rmi ${REPO}/${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
+}
+
+# clean local images
+if [ "$1" == "clean" ] ; then
+    clean brooklyn-sawtooth 2> /dev/null
+    clean sawtooth-contracts 2> /dev/null
+    shift
+fi
+
 # build the jar file for the catalog bundle
 mvn clean install
 
@@ -53,8 +69,6 @@ docker build . \
     -f ./docker/brooklyn-sawtooth
 
 # build sawtooth seth contract deploy image
-docker rmi sawtooth-contracts sawtooth-contracts:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
-docker rmi ${REPO}/sawtooth-contracts ${REPO}/sawtooth-contracts:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
 docker build . \
     --build-arg REPO=${REPO} \
     --build-arg SAWTOOTH_VERSION=${SAWTOOTH_VERSION} \

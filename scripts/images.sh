@@ -91,4 +91,4 @@ compose sawtooth-next-directory
 compose sawtooth-explorer
 
 # tidy up
-docker images prune --force
+docker image prune --force
