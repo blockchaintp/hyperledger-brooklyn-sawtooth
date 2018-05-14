@@ -1,0 +1,31 @@
+id: example-sawtooth-platform
+name: "example-sawtooth-platform"
+description: |
+  Example Hyperldger Sawtooth platform cluster.
+
+location:
+  jclouds:aws-ec2:
+    region: eu-central-1
+    identity: XXXXXXXXXXXXXXXXXXXX
+    credential: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    stopIptables: true
+    installDevUrandom: true
+    keyPair: xxxxxx
+    loginUser.privateKeyFile: /keys/xxxxxx.pem
+    privateKeyFile: /keys/xxxxxx.pem
+    securityGroups:
+      - "sg-xxxxxx"
+
+services:
+  - type: sawtooth-platform-application
+    id: example-sawtooth-platform
+    name: "example-sawtooth-platform"
+
+    brooklyn.config:
+      sawtooth.version: "1.0.5"
+      sawtooth.repository: "blockchaintp"
+      sawtooth.size: 2
+      sawtooth.network: "example"
+      sawtooth.network.cidr: "10.0.0.0/22"
+      sawtooth.network.gw: "10.0.0.1"
+      sawtooth.cluster.name: "example"
