@@ -7,27 +7,24 @@ brooklyn.catalog:
       version: 0.5.0-SNAPSHOT # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
 
   items:
-    - "classpath://io.brooklyn.hyperledger.sawtooth:tests/sawtooth/sawtooth-core.tests.bom"
-    - "classpath://io.brooklyn.hyperledger.sawtooth:tests/sawtooth/sawtooth-extras.tests.bom"
-    - "https://raw.githubusercontent.com/brooklyncentral/common-catalog-utils/master/common-tests/src/main/resources/commontests/common.tests.bom"
+    - "classpath://io.brooklyn.hyperledger.sawtooth:tests/sawtooth/catalog.tests.bom"
 
-    - id: hyperledger-multinode-sawtooth-tests
+    - id: sawtooth-multinode-cluster-testing
       type: entity
       item:
-        name: "hyperledger-sawtooth-multinode-network"
+        name: "sawtooth-multinode-cluster-testing"
         description: |
-          Hyperledger Sawtooth blockchain network in a single Amazon region.
-
+          Tests for a Hyperledger Sawtooth blockchain network
         services:
-          - type: sawtooth-platform-application
-            id: hyperledger-sawtooth-platform
-            name: "hyperledger-sawtooth-platform"
+          - type: sawtooth-cluster-application
+            id: sawtooth-cluster
+            name: "sawtooth-cluster"
 
             brooklyn.config:
               sawtooth.version: "1.0.5"
               sawtooth.repository: "blockchaintp"
               sawtooth.size: 3
-              sawtooth.network: "blockchaintp.local"
+              sawtooth.network: "sawtooth"
               sawtooth.network.cidr: "10.10.10.0/24"
               sawtooth.network.gw: "10.10.10.1"
               sawtooth.cluster.name: "sawtooth"
@@ -38,30 +35,31 @@ brooklyn.catalog:
             brooklyn.config:
               targetResolutionTimeout: 10s
               timeout: 30m
-              targetId: hyperledger-sawtooth-platform
+              targetId: sawtooth-cluster
               serverNodeId: sawtooth-server-node
 
             brooklyn.children:
               - type: sawtooth-tests
                 name: "Hyperleger Sawtooth Tests"
 
-    - id: sawtooth-platform-multinode-tests
+    - id: sawtooth-multinode-platform-testing
       type: entity
       item:
-        name: "sawtooth-platform-network"
+        name: "sawtooth-multinode-platform-network"
         description: |
-          The Sawtooth Platform consisting of a Sawtooth network and supporting components.
+          Tests for the Sawtooth Platform consisting of a Hyperledger Sawtooth
+          blockchain network and supporting components
 
         services:
           - type: sawtooth-platform-application
-            id: sawtooth-platform-cluster
-            name: "sawtooth-platform-cluster"
+            id: sawtooth-platform
+            name: "sawtooth-platform"
 
             brooklyn.config:
               sawtooth.version: "1.0.5"
               sawtooth.repository: "blockchaintp"
               sawtooth.size: 3
-              sawtooth.network: "blockchaintp.local"
+              sawtooth.network: "sawtooth"
               sawtooth.network.cidr: "10.0.0.0/22"
               sawtooth.network.gw: "10.0.0.1"
               sawtooth.cluster.name: "sawtooth"
@@ -72,7 +70,7 @@ brooklyn.catalog:
             brooklyn.config:
               targetResolutionTimeout: 10s
               timeout: 45m
-              targetId: sawtooth-platform-cluster
+              targetId: sawtooth-platform
               serverNodeId: sawtooth-platform-server-node
 
             brooklyn.children:

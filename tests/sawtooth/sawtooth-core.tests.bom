@@ -7,8 +7,6 @@ brooklyn.catalog:
       version: 0.5.0-SNAPSHOT # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
 
   items:
-    - "https://raw.githubusercontent.com/brooklyncentral/common-catalog-utils/master/common-tests/src/main/resources/commontests/common.tests.bom"
-
     - id: sawtooth-tests
       item:
         type: test-case
@@ -76,4 +74,3 @@ brooklyn.catalog:
                   method: GET
                   assert:
                     - contains: "sawtooth_settings"
-
