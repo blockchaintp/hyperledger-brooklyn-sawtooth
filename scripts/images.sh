@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2018 by Cloudsoft Corporation Limited
+# Copyright 2018 by Blockchain Technology Partners Limited
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
