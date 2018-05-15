@@ -22,7 +22,7 @@ Navigate to the root directory of this repository and run the following command 
             -v ~/keys:/keys \
             -v $(pwd)/examples:/blueprints \
             --name brooklyn \
-            blockchaintp/brooklyn-sawtooth:0.5.0-SNAPSHOT
+            blockchaintp/brooklyn-sawtooth:0.5.0
 
 The output should be the ID of the newly created container (different every time):
 

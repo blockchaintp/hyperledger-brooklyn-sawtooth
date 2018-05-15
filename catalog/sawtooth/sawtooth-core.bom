@@ -1,5 +1,5 @@
 brooklyn.catalog:
-  version: "0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
+  version: "0.5.0" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
   publish:
     description: |
       Entities for Hyperledger Sawtooth.
@@ -443,7 +443,7 @@ brooklyn.catalog:
                 account:
                   description: "Seth account id to deploy contract to"
               shell.env:
-                HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION: "0.5.0-SNAPSHOT"
+                HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION: "0.5.0"
                 REPOSITORY: $brooklyn:config("sawtooth.repository")
                 SAWTOOTH_SETH_RPC: $brooklyn:descendant("sawtooth-seth-rpc").config("container.name")
                 NETWORK: $brooklyn:config("sawtooth.network")

@@ -1,5 +1,5 @@
 brooklyn.catalog:
-  version: "0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
+  version: "0.5.0" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
   publish:
     description: |
       Resources for common Apache Brooklyn entities

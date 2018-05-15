@@ -1,10 +1,10 @@
 brooklyn.catalog:
-  version: "0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
+  version: "0.5.0" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
   itemType: entity
   brooklyn.libraries:
-    - url: "mvn:io.brooklyn.hyperledger/sawtooth/0.5.0-SNAPSHOT" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
+    - url: "mvn:io.brooklyn.hyperledger/sawtooth/0.5.0" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
       name: io.brooklyn.hyperledger.sawtooth
-      version: 0.5.0-SNAPSHOT # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
+      version: 0.5.0 # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
 
   items:
     - "classpath://io.brooklyn.hyperledger.sawtooth:tests/sawtooth/catalog.tests.bom"
