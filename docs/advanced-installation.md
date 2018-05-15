@@ -19,6 +19,7 @@ You should now see `sawtooth-platform` in the "Create Application" of the Brookl
 
 Now you can follow along with the getting started guide from [here](./getting-started.md#configure-and-add-an-aws-deployment-location), assuming you have already completed the prerequisite AWS account setup described [here](./aws-setup.md).
 
+There are also instructions [here] (./gce-setup.md) for using GCE as a target cloud.
 
 ---
 Copyright 2018 Blockchain Technology Partners Limited; Licensed under the [Apache License, Version 2.0](../LICENSE)
