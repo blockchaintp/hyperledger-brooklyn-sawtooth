@@ -16,6 +16,8 @@ When you create your key pair, the `.pem` file will automatically be downloaded.
 Run the following command to change the permissions so Brooklyn will be able to read it:
 
 	$ chmod 644 ~/keys/*.pem
+	
+**NOTE**: If you are using Windows, do not open or edit the key file because this can cause the file to use Windows line endings and Brooklyn will not properly read it.
 
 ### Create an AWS Security Group
 
