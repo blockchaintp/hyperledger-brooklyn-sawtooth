@@ -22,6 +22,10 @@ Run the following command to start a Brooklyn server using a Docker image with t
             -v ~/keys:/keys \
             --name brooklyn \
             blockchaintp/brooklyn-sawtooth
+	    
+**NOTE**: If you are running this container inside a VM (as opposed to your local machine), add the following option to the above command ([here's why](https://brooklyn.apache.org/v/latest/ops/troubleshooting/increase-entropy.html)):
+
+            -v /dev/urandom:/dev/random \
 
 The output should be the ID of the newly created container (different every time):
 
