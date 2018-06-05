@@ -1,5 +1,5 @@
 brooklyn.catalog:
-  version: "0.5.0" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
+  version: "0.5.1" # HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION
   publish:
     description: |
       Entities for Hyperledger Sawtooth with additional components.
