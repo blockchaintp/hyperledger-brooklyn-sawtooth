@@ -37,7 +37,7 @@ deploy() {
     image="$1"
     docker tag ${image} ${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
     docker tag ${image} ${REPO}/${image}:${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}
-    if ! grep -q "-SNAPSHOT" <(echo "${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}") ; then
+    if ! grep -q "SNAPSHOT" <(echo "${HYPERLEDGER_BROOKLYN_SAWTOOTH_VERSION}") ; then
         docker tag ${image} ${REPO}/${image}:latest
     fi
     docker push ${REPO}/${image}
