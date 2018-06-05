@@ -13,9 +13,9 @@ You can now add catalog files (.bom) and bundles (.jar/zip) using the `br catalo
 command -- add the Sawtooth catalog and bundle using the following commands:
 
     $ br catalog add \
-        https://github.com/blockchaintp/hyperledger-brooklyn-sawtooth/releases/download/v0.5.0/sawtooth-0.5.0.jar
+        https://github.com/blockchaintp/hyperledger-brooklyn-sawtooth/releases/download/v0.5.1/sawtooth-0.5.1.jar
     $ br catalog add \
-        https://github.com/blockchaintp/hyperledger-brooklyn-sawtooth/releases/download/v0.5.0/sawtooth.bom
+        https://github.com/blockchaintp/hyperledger-brooklyn-sawtooth/releases/download/v0.5.1/sawtooth.bom
 
 You should now see `sawtooth-platform` in the "Create Application" of the Brooklyn GUI and various Sawtooth entities and applications listed in the "Catalog" pane.
 
