@@ -24,7 +24,7 @@ brooklyn.catalog:
           - name: sawtooth.repository
             description: "Sawtooth Repository"
             type: string
-            default: "sawtooth"
+            default: "blockchaintp"
           - name: sawtooth.size
             description: "Cluster Size"
             type: integer
