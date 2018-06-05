@@ -29,7 +29,7 @@ services:
 
     brooklyn.config:
       sawtooth.version: "1.0.5"
-      sawtooth.repository: "sawtooth"
+      sawtooth.repository: "blockchaintp"
       sawtooth.size: 4
       sawtooth.network: "remote.one"
       sawtooth.network.cidr: "10.1.1.0/24"

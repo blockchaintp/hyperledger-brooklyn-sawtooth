@@ -24,7 +24,7 @@ brooklyn.catalog:
           - name: sawtooth.repository
             description: "Sawtooth Repository"
             type: string
-            default: "sawtooth"
+            default: "blockchaintp"
           - name: sawtooth.network
             description: "Network Name"
             type: string
@@ -70,7 +70,7 @@ brooklyn.catalog:
           - name: sawtooth.repository
             description: "Sawtooth Repository"
             type: string
-            default: "sawtooth"
+            default: "blockchaintp"
           - name: sawtooth.network
             description: "Network Name"
             type: string
@@ -116,7 +116,7 @@ brooklyn.catalog:
           - name: sawtooth.repository
             description: "Sawtooth Repository"
             type: string
-            default: "sawtooth"
+            default: "blockchaintp"
           - name: sawtooth.size
             description: "Cluster Size"
             type: integer
@@ -192,7 +192,7 @@ brooklyn.catalog:
           - name: sawtooth.repository
             description: "Sawtooth Repository"
             type: string
-            default: "sawtooth"
+            default: "blockchaintp"
           - name: sawtooth.size
             description: "Cluster Size"
             type: integer
@@ -574,7 +574,7 @@ brooklyn.catalog:
           - name: sawtooth.repository
             description: "Sawtooth Repository"
             type: string
-            default: "sawtooth"
+            default: "blockchaintp"
           - name: cluster.endpoint
             description: "Docker Cluster Store URL"
             type: string
@@ -626,7 +626,7 @@ brooklyn.catalog:
           - name: sawtooth.repository
             description: "Sawtooth Repository"
             type: string
-            default: "sawtooth"
+            default: "blockchaintp"
           - name: sawtooth.size
             description: "Cluster Size"
             type: integer

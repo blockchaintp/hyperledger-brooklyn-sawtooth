@@ -30,7 +30,7 @@ brooklyn.catalog:
 
             brooklyn.config:
               sawtooth.version: "1.0.5"
-              sawtooth.repository: "sawtooth"
+              sawtooth.repository: "blockchaintp"
               sawtooth.size: 4
               sawtooth.network: "sawtooth"
               sawtooth.network.cidr: "10.0.0.0/24"
@@ -52,13 +52,12 @@ brooklyn.catalog:
 
             brooklyn.config:
               sawtooth.version: "1.0.5"
-              sawtooth.repository: "sawtooth"
+              sawtooth.repository: "blockchaintp"
               sawtooth.size: 3
               sawtooth.network: "remote"
               sawtooth.network.cidr: "10.1.1.0/24"
               sawtooth.network.gw: "10.1.1.1"
               sawtooth.cluster.name: "brooklyn"
-              sawtooth.seed.network: "sawtooth"
 
     - id: sawtooth-seth-cluster-template
       name: "sawtooth-seth-cluster"
@@ -73,13 +72,12 @@ brooklyn.catalog:
 
             brooklyn.config:
               sawtooth.version: "1.0.5"
-              sawtooth.repository: "sawtooth"
+              sawtooth.repository: "blockchaintp"
               sawtooth.size: 3
-              sawtooth.network: "remote"
+              sawtooth.network: "sawtooth"
               sawtooth.network.cidr: "10.1.1.0/24"
               sawtooth.network.gw: "10.1.1.1"
               sawtooth.cluster.name: "brooklyn"
-              sawtooth.seed.network: "sawtooth"
 
     - id: sawtooth-platform-template
       name: "sawtooth-platform"
@@ -94,13 +92,12 @@ brooklyn.catalog:
 
             brooklyn.config:
               sawtooth.version: "1.0.5"
-              sawtooth.repository: "sawtooth"
+              sawtooth.repository: "blockchaintp"
               sawtooth.size: 3
-              sawtooth.network: "remote"
+              sawtooth.network: "sawtooth"
               sawtooth.network.cidr: "10.1.1.0/24"
               sawtooth.network.gw: "10.1.1.1"
               sawtooth.cluster.name: "brooklyn"
-              sawtooth.seed.network: "sawtooth"
 
     - id: sawtooth-workload-template
       name: "sawtooth-workload"
@@ -117,5 +114,5 @@ brooklyn.catalog:
 
             brooklyn.config:
               sawtooth.version: "1.0.5"
-              sawtooth.repository: "sawtooth"
+              sawtooth.repository: "blockchaintp"
               sawtooth.network: "sawtooth"
