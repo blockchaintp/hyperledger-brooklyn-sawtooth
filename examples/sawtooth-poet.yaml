@@ -20,6 +20,6 @@ services:
       sawtooth.cluster.name: "sawtooth"
       sawtooth.server-node.hardware: "m2.4xlarge"
       sawtooth.poet.module: "simulator"
-      sawtooth.poet.target-wait-time: 10
-      sawtooth.poet.initial-wait-time: 30
+      sawtooth.poet.target-wait-time: 5
+      sawtooth.poet.initial-wait-time: 25
       sawtooth.poet.max-batches-per-block: 100

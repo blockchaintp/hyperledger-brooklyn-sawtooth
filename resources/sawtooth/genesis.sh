@@ -57,8 +57,8 @@ poet registration create \
   -o poet.batch
 sawset proposal create \
   -k /etc/sawtooth/keys/validator.priv \
-  sawtooth.poet.target_wait_time=${TARGET_WAIT_TIME:-10} \
-  sawtooth.poet.initial_wait_time=${INITIAL_WAIT_TIME:-30} \
+  sawtooth.poet.target_wait_time=${TARGET_WAIT_TIME:-5} \
+  sawtooth.poet.initial_wait_time=${INITIAL_WAIT_TIME:-25} \
   sawtooth.publisher.max_batches_per_block=${MAX_BATCHES_PER_BLOCK:-100} \
   -o poet-settings.batch
 sawadm genesis \
@@ -68,7 +68,7 @@ sawtooth-validator -vv \
   --bind component:tcp://eth0:4004 \
   --bind network:tcp://eth0:8800 \
   --peering dynamic \
-  --scheduler parallel \
+  --scheduler serial \
   --minimum-peer-connectivity 255 \
   --maximum-peer-connectivity 255 \
   --opentsdb-url http://influxdb.${NETWORK}:8086 \

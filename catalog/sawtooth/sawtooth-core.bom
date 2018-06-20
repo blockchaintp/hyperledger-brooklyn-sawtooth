@@ -291,11 +291,11 @@ brooklyn.catalog:
           - name: sawtooth.poet.target-wait-time
             description: "Sawtooth PoET Target Wait Time"
             type: integer
-            default: 10
+            default: 5
           - name: sawtooth.poet.initial-wait-time
             description: "Sawtooth PoET Initial Wait Time"
             type: integer
-            default: 30
+            default: 25
           - name: sawtooth.poet.max-batches-per-block
             description: "Sawtooth PoET Max Batches Per Block"
             type: integer
@@ -953,7 +953,7 @@ brooklyn.catalog:
                     sawadm keygen --force && \
                     sawtooth keygen --force && \
                     sawtooth-validator -vv \
-                      --scheduler parallel \
+                      --scheduler serial \
                       --endpoint tcp://${NODE}.${NETWORK}:8800 \
                       --bind component:tcp://eth0:4004 \
                       --bind network:tcp://eth0:8800 \
