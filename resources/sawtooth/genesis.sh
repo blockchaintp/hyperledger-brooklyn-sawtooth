@@ -23,6 +23,11 @@
 # Launch main validator with genesis block
 #
 # Usage: genesis.sh
+# Environment:
+#   TARGET_WAIT_TIME
+#   INITIAL_WAIT_TIME
+#   MAX_BATCHES_PER_BLOCK
+#   MODULE
 ##
 
 sawadm keygen --force
@@ -42,19 +47,19 @@ IbZJL/2YzE37IzJdES16JCfmIUrk6TUqL0WgrWXyweTIoVSbld0M29kToSkMXLsj
 jtsjEEkq7Ndz5H8hllWUoHpxGDqLhM9O1/h+QdvTz7luZgpeJ5KB92vYL6yOlSxM
 fQIDAQAB
 -----END PUBLIC KEY-----' \
-  sawtooth.poet.valid_enclave_measurements=$(poet enclave --enclave-module simulator measurement) \
-  sawtooth.poet.valid_enclave_basenames=$(poet enclave --enclave-module simulator basename) \
+  sawtooth.poet.valid_enclave_measurements=$(poet enclave --enclave-module ${MODULE:-simulator} measurement) \
+  sawtooth.poet.valid_enclave_basenames=$(poet enclave --enclave-module ${MODULE:-simulator} basename) \
   sawtooth.validator.batch_injectors=block_info \
   -o config.batch
 poet registration create \
   -k /etc/sawtooth/keys/validator.priv \
-  --enclave-module simulator \
+  --enclave-module ${MODULE:-simulator} \
   -o poet.batch
 sawset proposal create \
   -k /etc/sawtooth/keys/validator.priv \
-  sawtooth.poet.target_wait_time=60 \
-  sawtooth.poet.initial_wait_time=120 \
-  sawtooth.publisher.max_batches_per_block=100 \
+  sawtooth.poet.target_wait_time=${TARGET_WAIT_TIME:-10} \
+  sawtooth.poet.initial_wait_time=${INITIAL_WAIT_TIME:-30} \
+  sawtooth.publisher.max_batches_per_block=${MAX_BATCHES_PER_BLOCK:-100} \
   -o poet-settings.batch
 sawadm genesis \
   genesis.batch config.batch poet.batch poet-settings.batch

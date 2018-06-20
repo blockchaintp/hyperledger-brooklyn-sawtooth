@@ -288,6 +288,22 @@ brooklyn.catalog:
             description: "Sawtooth Server Node Hardware"
             type: string
             default: "m3.xlarge"
+          - name: sawtooth.poet.target-wait-time
+            description: "Sawtooth PoET Target Wait Time"
+            type: integer
+            default: 10
+          - name: sawtooth.poet.initial-wait-time
+            description: "Sawtooth PoET Initial Wait Time"
+            type: integer
+            default: 30
+          - name: sawtooth.poet.max-batches-per-block
+            description: "Sawtooth PoET Max Batches Per Block"
+            type: integer
+            default: 100
+          - name: sawtooth.poet.module
+            description: "Sawtooth PoET Enclave Module"
+            type: string
+            default: "simulator"
 
         brooklyn.config:
           sawtooth.node: "validator"
@@ -844,6 +860,10 @@ brooklyn.catalog:
 
           shell.env:
             INSTALL_DIR: $brooklyn:attributeWhenReady("install.dir")
+            TARGET_WAIT_TIME: $brooklyn:config("sawtooth.poet.target-wait-time")
+            INITIAL_WAIT_TIME: $brooklyn:config("sawtooth.poet.initial-wait-time")
+            MAX_BATCHES_PER_BLOCK: $brooklyn:config("sawtooth.poet.max-batches-per-block")
+            MODULE: $brooklyn:config("sawtooth.poet.module")
 
           files.install:
             "classpath://io.brooklyn.hyperledger.sawtooth:sawtooth/genesis.sh": genesis.sh
@@ -863,6 +883,10 @@ brooklyn.catalog:
                 -p 8800:8800 \
                 -v ${HOME}/scripts:/scripts \
                 -e NETWORK=${NETWORK} \
+                -e TARGET_WAIT_TIME=${TARGET_WAIT_TIME} \
+                -e INITIAL_WAIT_TIME=${INITIAL_WAIT_TIME} \
+                -e MAX_BATCHES_PER_BLOCK=${MAX_BATCHES_PER_BLOCK} \
+                -e MODULE=${MODULE} \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
                 /scripts/genesis.sh
