@@ -541,6 +541,12 @@ brooklyn.catalog:
             brooklyn.config:
               latch.launch:
                 $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
+          - type: sawtooth-poet-validator-registry-tp
+            name: "sawtooth-poet-validator-registry-tp"
+            id: sawtooth-poet-validator-registry-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
     - id: sawtooth-seth-transaction-processors
       description: |
@@ -836,6 +842,17 @@ brooklyn.catalog:
           image.version: $brooklyn:config("sawtooth.version")
           image.repository: $brooklyn:config("sawtooth.repository")
 
+          shell.env:
+            INSTALL_DIR: $brooklyn:attributeWhenReady("install.dir")
+
+          files.install:
+            "classpath://io.brooklyn.hyperledger.sawtooth:sawtooth/genesis.sh": genesis.sh
+
+          customize.command: |
+            mkdir ${HOME}/scripts
+            mv ${INSTALL_DIR}/genesis.sh ${HOME}/scripts
+            chmod 755 ${HOME}/scripts/genesis.sh
+
           launch.command: |
             docker run \
                 --name=${CONTAINER_NAME} \
@@ -844,29 +861,11 @@ brooklyn.catalog:
                 -d \
                 -p 4004:4004 \
                 -p 8800:8800 \
+                -v ${HOME}/scripts:/scripts \
+                -e NETWORK=${NETWORK} \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                bash -c "\
-                    sawadm keygen --force && \
-                    sawtooth keygen ${NETWORK} --force && \
-                    sawset genesis \
-                      -k /etc/sawtooth/keys/validator.priv \
-                      -o genesis.batch && \
-                    sawset proposal create \
-                      -k /etc/sawtooth/keys/validator.priv \
-                      sawtooth.validator.batch_injectors=block_info \
-                      -o config.batch && \
-                    sawadm genesis \
-                      genesis.batch config.batch && \
-                    sawtooth-validator -vv \
-                      --endpoint tcp://validator.${NETWORK}:8800 \
-                      --bind component:tcp://eth0:4004 \
-                      --bind network:tcp://eth0:8800 \
-                      --peering dynamic \
-                      --minimum-peer-connectivity 255 \
-                      --maximum-peer-connectivity 255 \
-                      --opentsdb-url http://influxdb.${NETWORK}:8086 \
-                      --opentsdb-db metrics"
+                /scripts/genesis.sh
 
         brooklyn.initializers:
           - type: org.apache.brooklyn.core.sensor.StaticSensor
