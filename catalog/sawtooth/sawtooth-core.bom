@@ -929,6 +929,7 @@ brooklyn.catalog:
                     sawadm keygen --force && \
                     sawtooth keygen --force && \
                     sawtooth-validator -vv \
+                      --scheduler parallel \
                       --endpoint tcp://${NODE}.${NETWORK}:8800 \
                       --bind component:tcp://eth0:4004 \
                       --bind network:tcp://eth0:8800 \
