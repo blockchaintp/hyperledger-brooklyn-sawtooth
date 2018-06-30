@@ -19,6 +19,8 @@ Run the following command to change the permissions so Brooklyn will be able to 
 	
 **NOTE**: If you are using Windows, do not open or edit the key file because this can cause the file to use Windows line endings and Brooklyn will not properly read it.
 
+**NOTE**: If you are using a third party tool such as _ssh-keygen_ to create your key pair, make sure that you default to the empty pass phrase.
+
 ### Create an AWS Security Group
 
 Follow [this guide](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html#creating-security-group) to create security group. Be sure to make note of the ID of the group as you will need this later.
