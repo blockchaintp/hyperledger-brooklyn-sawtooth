@@ -43,7 +43,7 @@ The output should print the status of the Brooklyn server that is starting up:
     [.] waiting for brooklyn api..................ok
     ...
 
-### Configure and Add an AWS Deployment Location
+### Configure and Add AWS Deployment Locations
 
 Once the Brooklyn server has started up, the UI will be accessible in your browser.
 
@@ -57,6 +57,8 @@ You will need to make a number of modifications to this yaml so that it works wi
 - Replace the value of each security group ID (`sg-xxxxxx`) with the ID of security group that you created
 
 When you are finished making these edits, click "Add to Catalog."
+
+**NOTE**: If you are using the example yaml file you will need to create or provide a security group per location.
 
 ### Deploy Your Sawtooth Platform
 
