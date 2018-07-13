@@ -29,6 +29,11 @@
 #   MAX_BATCHES_PER_BLOCK
 #   MODULE
 ##
+if [ -z "${HOST_ADDRESS}" ]; then
+	ENDPOINT_ADDRESS=validator.${NETWORK}
+else
+	ENDPOINT_ADDRESS=${HOST_ADDRESS}
+fi
 
 sawadm keygen --force
 sawtooth keygen ${NETWORK} --force
@@ -64,12 +69,13 @@ sawset proposal create \
 sawadm genesis \
   genesis.batch config.batch poet.batch poet-settings.batch
 sawtooth-validator -vv \
-  --endpoint tcp://validator.${NETWORK}:8800 \
-  --bind component:tcp://eth0:4004 \
-  --bind network:tcp://eth0:8800 \
+  --endpoint tcp://${ENDPOINT_ADDRESS}:8800 \
+  --bind component:tcp://0.0.0.0:4004 \
+  --bind network:tcp://0.0.0.0:8800 \
   --peering dynamic \
-  --scheduler serial \
-  --minimum-peer-connectivity 255 \
+  --network-auth trust \
+  --scheduler ${SCHEDULER:-serial} \
+  --minimum-peer-connectivity ${MINIMUM_PEERS:-3} \
   --maximum-peer-connectivity 255 \
   --opentsdb-url http://influxdb.${NETWORK}:8086 \
   --opentsdb-db metrics
