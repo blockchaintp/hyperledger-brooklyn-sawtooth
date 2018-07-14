@@ -304,6 +304,14 @@ brooklyn.catalog:
             description: "Sawtooth PoET Enclave Module"
             type: string
             default: "simulator"
+          - name: sawtooth.minimum-peers
+            description: "Minimum number of peers to obtain befor stopping topology scans"
+            type: string
+            default: "4"
+          - name: sawtooth.scheduler
+            description: "The scheduler to be used for this validator"
+            type: string
+            default: "serial"
 
         brooklyn.config:
           sawtooth.node: "validator"
@@ -487,6 +495,14 @@ brooklyn.catalog:
             description: "Sawtooth Server Node Hardware"
             type: string
             default: "m3.medium"
+	  - name: sawtooth.minimum-peers
+	    description: "Minimum number of peers to obtain befor stopping topology scans"
+	    type: string
+            default: "4"
+          - name: sawtooth.scheduler
+	    description: "The scheduler to be used for this validator"
+	    type: string
+ 	    default: "serial"
 
         brooklyn.config:
           provisioning.properties.hardwareId:
@@ -505,9 +521,17 @@ brooklyn.catalog:
           - type: sawtooth-validator
             name: "sawtooth-validator"
             id: sawtooth-validator
+          - type: telegraf
+            name: "telegraf"
+            id: telegraf
           - type: sawtooth-transaction-processors
             name: "sawtooth-transaction-processors"
             id: sawtooth-transaction-processors
+          - type: sawtooth-rest-api
+            name: "sawtooth-rest-api"
+            id: sawtooth-rest-api
+            brooklyn.config:
+              latch.launch: $brooklyn:sibling("sawtooth-validator").attributeWhenReady("service.isUp")
 
         brooklyn.enrichers:
           - type: org.apache.brooklyn.enricher.stock.Propagator
@@ -545,6 +569,12 @@ brooklyn.catalog:
             brooklyn.config:
               latch.launch:
                 $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
+          - type: sawtooth-smallbank-tp
+            name: "sawtooth-smallbank-tp"
+            id: sawtooth-smallbank-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
           - type: sawtooth-identity-tp
             name: "sawtooth-identity-tp"
             id: sawtooth-identity-tp
@@ -560,6 +590,12 @@ brooklyn.catalog:
           - type: sawtooth-poet-validator-registry-tp
             name: "sawtooth-poet-validator-registry-tp"
             id: sawtooth-poet-validator-registry-tp
+            brooklyn.config:
+              latch.launch:
+                $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
+          - type: sawtooth-simple-tp
+            name: "sawtooth-simple-tp"
+            id: sawtooth-simple-tp
             brooklyn.config:
               latch.launch:
                 $brooklyn:parent().sibling("sawtooth-validator").attributeWhenReady("service.isUp")
@@ -814,7 +850,11 @@ brooklyn.catalog:
         name: "sawtooth-rest-api"
 
         brooklyn.config:
-          container.name: "rest-api"
+          container.name:
+            $brooklyn:formatString:
+              - "rest-api-%s"
+              - $brooklyn:attributeWhenReady("entity.id")
+          start.timeout: 5m
           image.name: "sawtooth-rest-api"
           image.version: $brooklyn:config("sawtooth.version")
           image.repository: $brooklyn:config("sawtooth.repository")
@@ -829,11 +869,11 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004 \
                 -p 8080:8080 \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                sawtooth-rest-api -v \
+                sawtooth-rest-api \
+                    -v \
                     --connect tcp://${NODE}.${NETWORK}:4004 \
                     --bind 0.0.0.0:8080 \
                     --opentsdb-url http://influxdb.${SEED_NETWORK:-${NETWORK}}:8086 \
@@ -862,9 +902,12 @@ brooklyn.catalog:
             INSTALL_DIR: $brooklyn:attributeWhenReady("install.dir")
             TARGET_WAIT_TIME: $brooklyn:config("sawtooth.poet.target-wait-time")
             INITIAL_WAIT_TIME: $brooklyn:config("sawtooth.poet.initial-wait-time")
-            MAX_BATCHES_PER_BLOCK: $brooklyn:config("sawtooth.poet.max-batches-per-block")
+            MAX_BATCHES_PER_BLOCK: $brooklyn:config("sawtooth.publisher.max-batches-per-block")
             MODULE: $brooklyn:config("sawtooth.poet.module")
-
+            SCHEDULER: $brooklyn:config("sawtooth.scheduler")
+            MINIMUM_PEERS: $brooklyn:config("sawtooth.minimum-peers")
+            ENDPOINT_ADDRESS: $brooklyn:attributeWhenReady("host.address")
+            
           files.install:
             "classpath://io.brooklyn.hyperledger.sawtooth:sawtooth/genesis.sh": genesis.sh
 
@@ -879,14 +922,17 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004:4004 \
-                -p 8800:8800 \
+                -p ${NODE}:4004:4004 \
+                -p ${NODE}:8800:8800 \
                 -v ${HOME}/scripts:/scripts \
                 -e NETWORK=${NETWORK} \
                 -e TARGET_WAIT_TIME=${TARGET_WAIT_TIME} \
                 -e INITIAL_WAIT_TIME=${INITIAL_WAIT_TIME} \
                 -e MAX_BATCHES_PER_BLOCK=${MAX_BATCHES_PER_BLOCK} \
                 -e MODULE=${MODULE} \
+                -e MINIMUM_PEERS=${MINIMUM_PEERS} \
+                -e HOST_ADDRESS=${ENDPOINT_ADDRESS} \
+                -e SCHEDULER=${SCHEDULER} \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
                 /scripts/genesis.sh
@@ -937,9 +983,14 @@ brooklyn.catalog:
           shell.env:
             NODE: $brooklyn:config("sawtooth.node")
             SEED_NETWORK: $brooklyn:config("sawtooth.seed.network")
-            SEED_VALIDATOR: $brooklyn:config("sawtooth.seed.validator")
-
+#            SEED_VALIDATOR: $brooklyn:config("sawtooth.seed.validator")
+            SEED_VALIDATOR: $brooklyn:ancestor("sawtooth-validator-cluster").sibling("sawtooth-platform-server-node").attributeWhenReady("host.address")
+            ENDPOINT_ADDRESS: $brooklyn:attributeWhenReady("host.address")
+            MINIMUM_PEERS: $brooklyn:config("sawtooth.minimum-peers")
+            SCHEDULER: $brooklyn:config("sawtooth.scheduler")
+            
           launch.command: |
+            sleep $(( ( RANDOM % 30 )  + 30 )) && \
             docker run \
                 --name=${CONTAINER_NAME} \
                 --restart=always \
@@ -952,17 +1003,19 @@ brooklyn.catalog:
                 bash -c "\
                     sawadm keygen --force && \
                     sawtooth keygen --force && \
-                    sawtooth-validator -vv \
-                      --scheduler serial \
-                      --endpoint tcp://${NODE}.${NETWORK}:8800 \
-                      --bind component:tcp://eth0:4004 \
-                      --bind network:tcp://eth0:8800 \
+                    sawtooth-validator \
+                      -v \
+                      --scheduler ${SCHEDULER} \
+                      --endpoint tcp://${ENDPOINT_ADDRESS}:8800 \
+                      --bind component:tcp://0.0.0.0:4004 \
+                      --bind network:tcp://0.0.0.0:8800 \
                       --peering dynamic \
-                      --minimum-peer-connectivity 255 \
+                      --network-auth trust \
+                      --minimum-peer-connectivity ${MINIMUM_PEERS} \
                       --maximum-peer-connectivity 255 \
                       --peers tcp://${SEED_VALIDATOR}:8800 \
                       --seed tcp://${SEED_VALIDATOR}:8800 \
-                      --opentsdb-url http://influxdb.${SEED_NETWORK}:8086 \
+                      --opentsdb-url http://${SEED_VALIDATOR}:8086 \
                       --opentsdb-db metrics"
 
         brooklyn.initializers:
@@ -1003,10 +1056,9 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004 \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                settings-tp -vv --connect tcp://${NODE}.${NETWORK}:4004
+                settings-tp -v --connect tcp://${NODE}.${NETWORK}:4004
 
     - id: sawtooth-identity-tp
       description: |
@@ -1036,10 +1088,9 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004 \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                identity-tp -vv --connect tcp://${NODE}.${NETWORK}:4004
+                identity-tp -v --connect tcp://${NODE}.${NETWORK}:4004
 
     - id: sawtooth-intkey-tp
       description: |
@@ -1069,10 +1120,9 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004 \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                intkey-tp-go -vv --connect tcp://${NODE}.${NETWORK}:4004
+                intkey-tp-go -v --connect tcp://${NODE}.${NETWORK}:4004
 
     - id: sawtooth-xo-tp
       description: |
@@ -1102,10 +1152,9 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004 \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                xo-tp-go -vv --connect tcp://${NODE}.${NETWORK}:4004
+                xo-tp-go -v --connect tcp://${NODE}.${NETWORK}:4004
 
     - id: sawtooth-smallbank-tp
       description: |
@@ -1135,10 +1184,9 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004 \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                smallbank-tp-go -vv tcp://${NODE}.${NETWORK}:4004
+                smallbank-tp-go -v tcp://${NODE}.${NETWORK}:4004
 
     - id: sawtooth-block-info-tp
       description: |
@@ -1168,10 +1216,9 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004 \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                block-info-tp --connect tcp://${NODE}.${NETWORK}:4004
+                block-info-tp -v --connect tcp://${NODE}.${NETWORK}:4004
 
     - id: sawtooth-seth-tp
       description: |
@@ -1206,11 +1253,10 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004 \
                 -v "${HOME}/data:/data" \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
-                seth-tp -vv \
+                seth-tp -v \
                     --connect tcp://${NODE}.${NETWORK}:4004 \
                     --listen tcp://*:4004
 
@@ -1306,7 +1352,6 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004 \
                 -p 3030:3030 \
                 -e RUST_BACKTRACE=full \
                 ${VOLUMES_FROM} \
@@ -1317,7 +1362,7 @@ brooklyn.catalog:
                   cd /data ; \
                   accounts=\$(ls *.pem | cut -d. -f1 | paste -d\  -s -) ; \
                   seth-rpc \
-                    -vv \
+                    -v \
                     --bind 0.0.0.0:3030 \
                     --connect tcp://${NODE}.${NETWORK}:4004 \
                     --process tcp://${SETH_TP}.${NETWORK}:4004 \
@@ -1350,7 +1395,6 @@ brooklyn.catalog:
                 --restart=always \
                 --network ${NETWORK} \
                 -d \
-                -p 4004 \
                 ${CONTAINER_OPTIONS} \
                 ${IMAGE} \
                 poet-validator-registry-tp -v --connect tcp://${NODE}.${NETWORK}:4004
@@ -1413,7 +1457,11 @@ brooklyn.catalog:
         name: "telegraf"
 
         brooklyn.config:
-          container.name: "telegraf"
+          container.name: 
+            $brooklyn:formatString:
+              - "telegraph-%s"
+              - $brooklyn:attributeWhenReady("entity.id")
+
           image.name: "telegraf"
 
           shell.env:
